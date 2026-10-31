@@ -1,0 +1,202 @@
+/* =========================================================
+   Second Brain Zettelkasten Vault (KnowledgeBasePage.css)
+   ========================================================= */
+
+.kb-container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 16px 12px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.kb-header-card {
+  background:
+    radial-gradient(circle at 90% 15%, rgba(34, 211, 238, 0.15) 0%, transparent 45%),
+    linear-gradient(135deg, rgba(139, 92, 246, 0.14) 0%, var(--bg-surface) 70%);
+  border: 2px solid var(--border-muted);
+  border-radius: 26px;
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.kb-header-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #22d3ee 0%, #8b5cf6 50%, #a3e635 100%);
+}
+
+.kb-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #090d16;
+  background: #22d3ee;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #090d16;
+  width: fit-content;
+  box-shadow: 0 2px 0 #090d16;
+  margin-bottom: 8px;
+}
+
+.kb-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.6vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.kb-subtitle {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 650px;
+  margin-top: 4px;
+}
+
+/* Tactile Index-Tab Filter Bar */
+.kb-category-tabs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.kb-cat-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  background: var(--bg-app);
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kb-cat-tab:hover {
+  border-color: var(--border-muted);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.kb-cat-tab.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  box-shadow: 0 3px 0 #3730a3;
+}
+
+/* Zettelkasten Index Cards Grid */
+.kb-entries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.kb-entry-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-top: 5px solid #22d3ee;
+  border-radius: 22px;
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kb-entry-card:hover {
+  transform: translateY(-4px) rotate(-0.3deg);
+  border-color: #22d3ee;
+}
+
+.kb-entry-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kb-tag-pill {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(163, 230, 53, 0.14);
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  color: #a3e635;
+}
+
+[data-theme="light"] .kb-tag-pill {
+  color: #3f6212;
+}
+
+.kb-user-explanation-box {
+  background: var(--bg-app);
+  border: 1.5px dashed var(--border-muted);
+  border-left: 4px solid var(--accent-primary);
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Modal Form */
+.kb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 999;
+}
+
+.kb-modal-content {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 620px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: var(--shadow-lg);
+}

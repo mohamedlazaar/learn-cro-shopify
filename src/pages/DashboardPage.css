@@ -1,0 +1,765 @@
+/* ==========================================================================
+   Tactile RPG Mission Control & Synapse Arcade Dashboard
+   ========================================================================== */
+
+.tp-dashboard {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 12px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* SECTION 1: ALCHEMIST COMMAND DECK & BRAIN BATTERY REACTOR */
+.tp-coach-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 28px 32px;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(163, 230, 53, 0.12) 0%, transparent 45%),
+    linear-gradient(135deg, rgba(139, 92, 246, 0.14) 0%, var(--bg-surface) 65%);
+  border: 2px solid var(--border-muted);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+}
+
+.tp-coach-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.tp-coach-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.tp-rank-chip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-muted);
+  color: var(--neon-amber);
+}
+
+.tp-coach-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.tp-coach-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 580px;
+  line-height: 1.55;
+}
+
+.tp-mini-telemetry-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.tp-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 10px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  box-shadow: 0 2px 0 var(--card-edge);
+}
+
+.tp-stat-chip strong {
+  color: var(--text-primary);
+}
+
+/* Interactive Brain Battery Reactor */
+.tp-battery-widget {
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-muted);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 0 var(--card-edge);
+}
+
+.tp-battery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.tp-battery-cells {
+  display: flex;
+  gap: 4px;
+}
+
+.tp-battery-cells .cell {
+  width: 12px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--bg-surface-active);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.tp-battery-cells .cell.on.lime {
+  background: #a3e635;
+  border-color: #a3e635;
+  box-shadow: 0 0 8px rgba(163, 230, 53, 0.6);
+}
+
+.tp-battery-cells .cell.on.amber {
+  background: #fbbf24;
+  border-color: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+.tp-energy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.tp-energy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.tp-energy-btn.active-lime {
+  background: #a3e635;
+  color: #090d16;
+  box-shadow: 0 2px 10px rgba(163, 230, 53, 0.35);
+}
+
+.tp-energy-btn.active-amber {
+  background: #fbbf24;
+  color: #090d16;
+  box-shadow: 0 2px 10px rgba(251, 191, 36, 0.35);
+}
+
+/* SECTION 2: HOLOGRAPHIC QUEST BOARDING PASS */
+.tp-quest-ticket {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-radius: 26px;
+  display: grid;
+  grid-template-columns: 1fr auto 220px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-quest-ticket::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #a3e635 0%, #22d3ee 50%, #8b5cf6 100%);
+}
+
+@media (max-width: 860px) {
+  .tp-quest-ticket {
+    grid-template-columns: 1fr;
+  }
+  .tp-ticket-perforation,
+  .tp-ticket-stub {
+    display: none !important;
+  }
+}
+
+.tp-ticket-main {
+  padding: 32px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tp-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tp-duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: #a3e635;
+  background: rgba(163, 230, 53, 0.14);
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(163, 230, 53, 0.4);
+}
+
+[data-theme="light"] .tp-duration-badge {
+  color: #3f6212;
+}
+
+.tp-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.tp-hero-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.tp-quest-checkpoints {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 14px;
+  width: fit-content;
+}
+
+.tp-checkpoint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cp-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--accent-muted);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-glow);
+}
+
+.cp-arrow {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.tp-ticket-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tp-ticket-perforation {
+  width: 2px;
+  border-left: 3px dashed var(--border-muted);
+  margin: 22px 0;
+  position: relative;
+}
+
+.tp-ticket-stub {
+  padding: 28px 20px;
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(34, 211, 238, 0.05) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 10px;
+}
+
+.stub-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.stub-code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--neon-cyan);
+  background: var(--bg-app);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+}
+
+.stub-ring-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 0 var(--card-edge);
+}
+
+.stub-meta {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.stub-barcode {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* SECTION 3: SYNAPSE MEMORY ARCADE (3D STACKED FLASHCARD DECK) */
+.tp-review-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-radius: 24px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.tp-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tp-synapse-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 0 #090d16;
+}
+
+.tp-review-empty {
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--bg-app);
+  border: 1.5px dashed var(--border-muted);
+  border-radius: 18px;
+}
+
+.tp-empty-trophy {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.tp-flashcard-stack {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.tp-flashcard-stack::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 0;
+  height: 20px;
+  background: var(--bg-surface-active);
+  border: 1.5px solid var(--border-muted);
+  border-radius: 18px;
+  z-index: 0;
+}
+
+.tp-review-item-box {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-app);
+  border: 2px solid var(--border-muted);
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 6px 0 var(--card-edge);
+}
+
+.tp-card-counter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--neon-cyan);
+}
+
+.tp-flashcard-question {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.tp-flashcard-back-reveal {
+  padding: 16px 20px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.tp-outcome-btns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.tp-outcome-btn {
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-muted);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--card-edge);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tp-outcome-btn:hover {
+  transform: translateY(-2px);
+}
+
+.tp-outcome-btn.struggled:hover {
+  border-color: var(--warning);
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+}
+
+.tp-outcome-btn.recalled:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(34, 211, 238, 0.14);
+  color: #22d3ee;
+}
+
+.tp-outcome-btn.mastered:hover {
+  border-color: #a3e635;
+  background: rgba(163, 230, 53, 0.14);
+  color: #a3e635;
+}
+
+/* SECTION 4: BENTO WORKBENCH TILES */
+.tp-bento-workbench {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 760px) {
+  .tp-bento-workbench {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tp-bento-tile {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  border-radius: 22px;
+  padding: 24px 26px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-bento-tile:hover {
+  transform: translateY(-5px);
+}
+
+.tp-bento-tile.tile-lime:hover { border-color: #a3e635; }
+.tp-bento-tile.tile-cyan:hover { border-color: #22d3ee; }
+.tp-bento-tile.tile-coral:hover { border-color: #fb7185; }
+.tp-bento-tile.tile-amber:hover { border-color: #fbbf24; }
+
+.bento-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bento-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.bento-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #090d16;
+  box-shadow: 0 3px 0 #090d16;
+  color: #090d16;
+}
+
+.bento-icon-wrap.lime { background: #a3e635; }
+.bento-icon-wrap.cyan { background: #22d3ee; }
+.bento-icon-wrap.coral { background: #fb7185; color: #fff; }
+.bento-icon-wrap.amber { background: #fbbf24; }
+
+.bento-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.bento-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.bento-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-subtle);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+/* SECTION 5: THE 6-WORLD SKILL TREE MAP */
+.tp-curriculum-collapsible {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-muted);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.tp-curriculum-trigger {
+  width: 100%;
+  padding: 20px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.tp-curriculum-trigger:hover {
+  background: var(--bg-surface-hover);
+}
+
+.tp-map-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--accent-muted);
+  border: 1px solid var(--accent-glow);
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-expand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.tp-curriculum-body {
+  padding: 24px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1.5px dashed var(--border-subtle);
+}
+
+.tp-worlds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.tp-world-node-card {
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-subtle);
+  border-left: 5px solid var(--node-accent, var(--accent-primary));
+  border-radius: 16px;
+  padding: 18px 20px;
+  text-decoration: none;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 3px 0 var(--card-edge);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[dir="rtl"] .tp-world-node-card {
+  border-left: 1.5px solid var(--border-subtle);
+  border-right: 5px solid var(--node-accent, var(--accent-primary));
+}
+
+.tp-world-node-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--node-accent, var(--accent-primary));
+}
+
+.tp-world-watermark {
+  position: absolute;
+  right: 10px;
+  bottom: -8px;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--node-accent);
+  opacity: 0.08;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.tp-world-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tp-world-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--node-accent);
+}
+
+.tp-world-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tp-world-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.tp-world-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--node-accent);
+  margin-top: 2px;
+}
+
+[dir="rtl"] .tp-curriculum-trigger,
+body.lang-ar .tp-curriculum-trigger {
+  text-align: right;
+}

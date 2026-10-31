@@ -1,0 +1,818 @@
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Space Grotesk', 'Outfit', var(--font-sans);
+  --font-display: 'Syne', 'Space Grotesk', var(--font-sans);
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Progressive enhancement for modern gradient color spaces (modern-web-guidance) */
+  --in-oklab: ;
+  --in-oklch: ;
+
+  /* Midnight Alchemy Arcade (Dark Theme Default) */
+  --bg-app: #07080f;
+  --bg-surface: #0f111c;
+  --bg-surface-elevated: #141726;
+  --bg-surface-hover: #191d30;
+  --bg-surface-active: #20253d;
+  --bg-sidebar: #090b14;
+  --bg-glass: rgba(15, 17, 28, 0.82);
+
+  --border-subtle: rgba(148, 163, 184, 0.14);
+  --border-muted: rgba(148, 163, 184, 0.26);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --border-focus: #8b5cf6;
+  --card-edge: #030408;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #7c8ba1;
+  --text-disabled: #475569;
+
+  /* Vibrant Arcade Palette */
+  --accent-primary: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-muted: rgba(139, 92, 246, 0.16);
+  --accent-glow: rgba(139, 92, 246, 0.42);
+  --accent-edge: #4c1d95;
+
+  --neon-lime: #a3e635;
+  --neon-lime-muted: rgba(163, 230, 53, 0.15);
+  --neon-cyan: #22d3ee;
+  --neon-cyan-muted: rgba(34, 211, 238, 0.15);
+  --neon-coral: #fb7185;
+  --neon-coral-muted: rgba(251, 113, 133, 0.15);
+  --neon-amber: #fbbf24;
+  --neon-amber-muted: rgba(251, 191, 36, 0.15);
+
+  --success: #10b981;
+  --success-muted: rgba(16, 185, 129, 0.16);
+  --warning: #f59e0b;
+  --warning-muted: rgba(245, 158, 11, 0.16);
+  --danger: #f43f5e;
+  --danger-muted: rgba(244, 63, 94, 0.16);
+  --info: #06b6d4;
+  --info-muted: rgba(6, 182, 212, 0.16);
+
+  /* Tactile 3D & Neo-Brutalist Layered Shadows */
+  --shadow-sm: 0 2px 0 var(--card-edge), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 0 var(--card-edge), 0 10px 24px -4px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 6px 0 var(--card-edge), 0 20px 38px -6px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 28px var(--accent-glow);
+  --shadow-tactile: 0 4px 0 rgba(0, 0, 0, 0.65);
+  --shadow-tactile-accent: 0 4px 0 #4c1d95, 0 8px 20px rgba(139, 92, 246, 0.35);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+  --radius-full: 9999px;
+
+  --topbar-height: 64px;
+  --sidebar-width: 264px;
+  --sidebar-collapsed-width: 72px;
+
+  /* Blueprint Grid Pattern Variables */
+  --grid-dot: rgba(139, 92, 246, 0.14);
+  --grid-line: rgba(255, 255, 255, 0.025);
+}
+
+@supports (background: linear-gradient(in oklab, white, black)) {
+  :root {
+    --in-oklab: in oklab;
+    --in-oklch: in oklch;
+  }
+}
+
+/* Tactile Risograph Studio Paper (Light Theme) */
+[data-theme="light"] {
+  --bg-app: #f7f4eb;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #fcfaf5;
+  --bg-surface-hover: #f1ede0;
+  --bg-surface-active: #e6e0ce;
+  --bg-sidebar: #fcfaf2;
+  --bg-glass: rgba(252, 250, 242, 0.88);
+
+  --border-subtle: #d6cfc2;
+  --border-muted: #1e293b;
+  --border-strong: #0f172a;
+  --border-focus: #6d28d9;
+  --card-edge: #1e293b;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
+
+  --accent-primary: #6d28d9;
+  --accent-hover: #5b21b6;
+  --accent-muted: rgba(109, 40, 217, 0.1);
+  --accent-glow: rgba(109, 40, 217, 0.25);
+  --accent-edge: #2e1065;
+
+  --neon-lime: #4d7c0f;
+  --neon-cyan: #0891b2;
+  --neon-coral: #e11d48;
+  --neon-amber: #d97706;
+
+  --shadow-sm: 3px 3px 0 #1e293b;
+  --shadow-md: 4px 4px 0 #1e293b;
+  --shadow-lg: 6px 6px 0 #0f172a;
+  --shadow-tactile: 3px 3px 0 #0f172a;
+  --shadow-tactile-accent: 3px 3px 0 #1e1b4b;
+
+  --grid-dot: rgba(15, 23, 42, 0.12);
+  --grid-line: rgba(15, 23, 42, 0.04);
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  color-scheme: dark light;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-primary) transparent;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  /* Interactive Isometric Dot-Matrix & Aurora Blueprint Canvas */
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(139, 92, 246, 0.14) 0%, transparent 38%),
+    radial-gradient(circle at 88% 18%, rgba(34, 211, 238, 0.10) 0%, transparent 35%),
+    radial-gradient(circle at 50% 92%, rgba(163, 230, 53, 0.07) 0%, transparent 40%),
+    radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Accessibility Focus States */
+:focus-visible {
+  outline: 2px solid var(--neon-lime);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 10000;
+  background: var(--accent-primary);
+  color: white;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  transition: top 0.2s;
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-muted);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Expressive Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   3D Tactile Keycap Buttons
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.14s ease, background 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg var(--in-oklch), #8b5cf6 0%, #6366f1 55%, #ec4899 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: var(--shadow-tactile-accent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #4c1d95, 0 12px 28px rgba(139, 92, 246, 0.5);
+  filter: brightness(1.06);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #4c1d95;
+}
+
+.btn-secondary {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-muted);
+  box-shadow: var(--shadow-tactile);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--card-edge), 0 8px 20px rgba(139, 92, 246, 0.18);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--card-edge);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 15px;
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Arcade Sticker Badges & Pills
+   ========================================================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.badge-indigo, .badge-primary {
+  background: var(--accent-muted);
+  color: #c4b5fd;
+  border: 1px solid var(--accent-glow);
+}
+
+[data-theme="light"] .badge-indigo,
+[data-theme="light"] .badge-primary {
+  color: var(--accent-primary);
+}
+
+.badge-green, .badge-emerald, .badge-success {
+  background: var(--success-muted);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+[data-theme="light"] .badge-green,
+[data-theme="light"] .badge-emerald,
+[data-theme="light"] .badge-success {
+  color: #047857;
+}
+
+.badge-amber {
+  background: var(--warning-muted);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+[data-theme="light"] .badge-amber {
+  color: #b45309;
+}
+
+.badge-red {
+  background: var(--danger-muted);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.badge-gray {
+  background: var(--bg-surface-active);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-muted);
+}
+
+/* ==========================================================================
+   Tactile Cartridge Cards
+   ========================================================================== */
+.card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 45%);
+}
+
+.card:hover {
+  border-color: var(--border-muted);
+}
+
+.card-interactive {
+  cursor: pointer;
+}
+
+.card-interactive:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 8px 0 var(--card-edge), 0 16px 32px -4px rgba(139, 92, 246, 0.28);
+  transform: translateY(-4px);
+}
+
+.card-interactive:active {
+  transform: translateY(0px);
+}
+
+/* ==========================================================================
+   Tactile Lab Inputs & Forms
+   ========================================================================== */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.input, .input-text, .input-select, .input-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-muted);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.input:focus, .input-text:focus, .input-select:focus, .input-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-muted), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.input-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Layout Containers */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  transition: margin 0.2s ease;
+}
+
+@media (max-width: 900px) {
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+.page-content {
+  flex: 1;
+  padding: 28px 34px 64px;
+  max-width: 1360px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .page-content {
+    padding: 16px 14px 48px;
+  }
+}
+
+/* ==========================================================================
+   Creative Arcade Utility Classes (Stickers, Tickets, Dot-Matrix, Glows)
+   ========================================================================== */
+.arcade-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--neon-lime);
+  color: #090d16;
+  border: 2px solid #090d16;
+  box-shadow: 2px 3px 0 #090d16;
+  transform: rotate(-2deg);
+}
+
+.arcade-sticker-coral {
+  background: var(--neon-coral);
+  color: #ffffff;
+}
+
+.arcade-sticker-cyan {
+  background: var(--neon-cyan);
+  color: #090d16;
+}
+
+.arcade-sticker-amber {
+  background: var(--neon-amber);
+  color: #090d16;
+}
+
+/* Ticket Perforation Divider */
+.ticket-divider {
+  border: none;
+  border-top: 2px dashed var(--border-muted);
+  margin: 16px 0;
+  position: relative;
+}
+
+/* Corner Crosshair Hardware Accents */
+.cyber-corner-box {
+  position: relative;
+}
+
+.cyber-corner-box::before,
+.cyber-corner-box::after {
+  content: '+';
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.cyber-corner-box::before {
+  top: 8px;
+  left: 10px;
+}
+
+.cyber-corner-box::after {
+  top: 8px;
+  right: 10px;
+}
+
+/* ==========================================================================
+   Bilingual & RTL (Right-to-Left) System Overrides
+   ========================================================================== */
+[dir="rtl"],
+body.lang-ar {
+  font-family: 'Cairo', 'Tajawal', var(--font-sans);
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
+body.lang-ar h1, body.lang-ar h2, body.lang-ar h3, body.lang-ar h4, body.lang-ar h5, body.lang-ar h6 {
+  font-family: 'Cairo', 'Tajawal', var(--font-heading);
+  letter-spacing: normal;
+}
+
+[dir="rtl"] .main-content-wrapper,
+body.lang-ar .main-content-wrapper {
+  margin-left: 0;
+  margin-right: var(--sidebar-width);
+}
+
+[dir="rtl"] .app-sidebar,
+body.lang-ar .app-sidebar {
+  left: auto !important;
+  right: 0 !important;
+  border-right: none !important;
+  border-left: 1.5px solid var(--border-subtle) !important;
+}
+
+[dir="rtl"] .skip-link,
+body.lang-ar .skip-link {
+  left: auto;
+  right: 16px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.04); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+@keyframes marqueeScroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   Active Recall Cognitive Evaluation Component (Global)
+   ========================================================================== */
+.lp-recall-eval-card {
+  background: var(--bg-surface-elevated);
+  border: 2px solid var(--border-muted);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.25s ease-out;
+}
+
+.lp-recall-eval-banner {
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-recall-eval-banner.is-correct {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-left: 5px solid #10b981;
+}
+
+.lp-recall-eval-banner.is-partial {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  border-left: 5px solid #f59e0b;
+}
+
+.lp-recall-eval-banner.is-needs-work {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1.5px solid rgba(139, 92, 246, 0.4);
+  border-left: 5px solid #8b5cf6;
+}
+
+[dir="rtl"] .lp-recall-eval-banner {
+  border-left: 1.5px solid inherit;
+  border-right: 5px solid inherit;
+}
+[dir="rtl"] .lp-recall-eval-banner.is-correct {
+  border-right-color: #10b981;
+}
+[dir="rtl"] .lp-recall-eval-banner.is-partial {
+  border-right-color: #f59e0b;
+}
+[dir="rtl"] .lp-recall-eval-banner.is-needs-work {
+  border-right-color: #8b5cf6;
+}
+
+.lp-recall-eval-title {
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.lp-recall-eval-summary {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.lp-recall-user-quote {
+  background: var(--bg-app);
+  border: 1.5px dashed var(--border-muted);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+.lp-recall-eval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.lp-recall-eval-col {
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lp-recall-eval-col-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lp-recall-eval-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.lp-recall-eval-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lp-recall-consultant-box {
+  background: linear-gradient(135deg var(--in-oklch), rgba(139, 92, 246, 0.14) 0%, rgba(34, 211, 238, 0.08) 100%);
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-recall-consultant-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lp-recall-consultant-quote {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-style: italic;
+  margin: 0;
+}
+
+.lp-recall-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1.5px dashed var(--border-subtle);
+}
