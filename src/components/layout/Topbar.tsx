@@ -1,5 +1,6 @@
 import React from 'react';
-import { Flame, Shield, Sun, Moon, Search, Menu, Sparkles, Languages, Zap } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Flame, Shield, Sun, Moon, Search, Menu, Languages, Zap } from 'lucide-react';
 import { useProgress } from '../../context/ProgressContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -21,6 +22,8 @@ export const Topbar: React.FC<TopbarProps> = ({
   const { gamification, completedLessons } = useProgress();
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, isArabic, t } = useLanguage();
+  const location = useLocation();
+  const isLessonFocusMode = location.pathname.startsWith('/lesson/');
 
   const levelInfo = getLevelProgress(gamification.xp);
   const totalLessons = ALL_LESSONS.length;
@@ -76,50 +79,54 @@ export const Topbar: React.FC<TopbarProps> = ({
           </button>
         </div>
 
-        {/* Mastery Radar Ring */}
-        <div
-          className="topbar-progress-pill"
-          title={`${finishedLessonsCount} / ${totalLessons} ${t('dash.lessons')} ${t('app.curriculumDone')}`}
-        >
-          <ProgressRing progress={overallCurriculumProgress} size={24} strokeWidth={3} />
-          <span className="progress-text">
-            {finishedLessonsCount}/{totalLessons}
-          </span>
-        </div>
+        {!isLessonFocusMode && (
+          <>
+            {/* Mastery Radar Ring */}
+            <div
+              className="topbar-progress-pill"
+              title={`${finishedLessonsCount} / ${totalLessons} ${t('dash.lessons')} ${t('app.curriculumDone')}`}
+            >
+              <ProgressRing progress={overallCurriculumProgress} size={24} strokeWidth={3} />
+              <span className="progress-text">
+                {finishedLessonsCount}/{totalLessons}
+              </span>
+            </div>
 
-        {/* Combo Streak Reactor */}
-        <div
-          className="topbar-streak-pill"
-          title={`${gamification.streak} ${t('app.streak')}`}
-        >
-          <Flame size={15} className="streak-flame" />
-          <span className="streak-number">{gamification.streak}d</span>
-          {gamification.freezesLeft > 0 && (
-            <span className="streak-freeze" title={t('app.freeze')}>
-              <Shield size={11} />
-            </span>
-          )}
-        </div>
+            {/* Combo Streak Reactor */}
+            <div
+              className="topbar-streak-pill"
+              title={`${gamification.streak} ${t('app.streak')}`}
+            >
+              <Flame size={15} className="streak-flame" />
+              <span className="streak-number">{gamification.streak}d</span>
+              {gamification.freezesLeft > 0 && (
+                <span className="streak-freeze" title={t('app.freeze')}>
+                  <Shield size={11} />
+                </span>
+              )}
+            </div>
 
-        {/* Level & XP Crystal Pill */}
-        <div className="topbar-level-pill">
-          <Zap size={13} className="level-sparkle" />
-          <span className="level-label">
-            LVL {levelInfo.currentLevel}
-          </span>
-          <span className="level-xp-text">{gamification.xp} {t('app.xp')}</span>
-        </div>
+            {/* Level & XP Crystal Pill */}
+            <div className="topbar-level-pill">
+              <Zap size={13} className="level-sparkle" />
+              <span className="level-label">
+                LVL {levelInfo.currentLevel}
+              </span>
+              <span className="level-xp-text">{gamification.xp} {t('app.xp')}</span>
+            </div>
 
-        {/* Arabic Terms Glossary Trigger */}
-        {onOpenArabicGlossary && !isArabic && (
-          <button
-            onClick={onOpenArabicGlossary}
-            className="topbar-glossary-btn"
-            title="قاموس المصطلحات العربية (Arabic Terms)"
-          >
-            <Languages size={14} />
-            <span className="glossary-btn-text">Glossary</span>
-          </button>
+            {/* Arabic Terms Glossary Trigger */}
+            {onOpenArabicGlossary && !isArabic && (
+              <button
+                onClick={onOpenArabicGlossary}
+                className="topbar-glossary-btn"
+                title="قاموس المصطلحات العربية (Arabic Terms)"
+              >
+                <Languages size={14} />
+                <span className="glossary-btn-text">Glossary</span>
+              </button>
+            )}
+          </>
         )}
 
         {/* Day / Night Risograph Theme Switch */}

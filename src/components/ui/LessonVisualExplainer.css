@@ -6,20 +6,14 @@
 .lve-container {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 24px 28px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   position: relative;
   overflow: hidden;
-  margin: 6px 0 16px;
-  transition: border-color 0.2s ease;
-}
-
-.lve-container:hover {
-  border-color: rgba(139, 92, 246, 0.4);
+  margin: 0;
 }
 
 /* Header & Toggle Controls */

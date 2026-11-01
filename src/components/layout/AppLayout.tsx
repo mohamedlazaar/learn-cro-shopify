@@ -11,14 +11,16 @@ import { useProgress } from '../../context/ProgressContext';
 import { useAuth } from '../../context/AuthContext';
 
 export const AppLayout: React.FC = () => {
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-  const [isArabicGlossaryOpen, setIsArabicGlossaryOpen] = useState(false);
-
   const { toasts, dismissToast } = useProgress();
   const { user } = useAuth();
   const location = useLocation();
+
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const [isArabicGlossaryOpen, setIsArabicGlossaryOpen] = useState(false);
+
+  const isOnboardingOpen = Boolean(user && !user.onboardingCompleted && !onboardingDismissed);
 
   // Scroll to top on navigation
   useEffect(() => {
@@ -37,15 +39,9 @@ export const AppLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Show onboarding once if not completed
-  useEffect(() => {
-    if (user && !user.onboardingCompleted) {
-      setIsOnboardingOpen(true);
-    }
-  }, [user]);
-
   // If on landing page "/", don't show full app sidebar/topbar
   const isLandingPage = location.pathname === '/';
+  const isLessonPage = location.pathname.startsWith('/lesson/');
 
   if (isLandingPage) {
     return (
@@ -105,11 +101,11 @@ export const AppLayout: React.FC = () => {
       {/* Onboarding Modal */}
       <OnboardingModal
         isOpen={isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
+        onClose={() => setOnboardingDismissed(true)}
       />
 
-      {/* Floating AI Learning Mentor */}
-      <AiLearningAssistant />
+      {/* Floating AI Learning Mentor (hidden on lesson pages to prevent distraction) */}
+      {!isLessonPage && <AiLearningAssistant />}
     </div>
   );
 };

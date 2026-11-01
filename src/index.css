@@ -4,6 +4,12 @@
   --font-display: 'Syne', 'Space Grotesk', var(--font-sans);
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* Dedicated Deep Concentration Reading Typography */
+  --font-reading: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-reading-serif: 'Newsreader', 'Charter', Georgia, Cambria, 'Times New Roman', serif;
+  --font-reading-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-reading-ar: 'Readex Pro', 'IBM Plex Sans Arabic', 'Tajawal', 'Cairo', sans-serif;
+
   /* Progressive enhancement for modern gradient color spaces (modern-web-guidance) */
   --in-oklab: ;
   --in-oklch: ;

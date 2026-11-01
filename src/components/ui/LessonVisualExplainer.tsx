@@ -176,39 +176,33 @@ export const LessonVisualExplainer: React.FC<LessonVisualExplainerProps> = ({
       {/* 1. Header Bar */}
       <div className="lve-header">
         <div className="lve-header-main">
-          <div className="lve-kicker-row">
-            <span className="lve-badge">
-              <Sparkles size={13} />
-              <span>{isArabic ? 'مخطط بصري تفاعلي' : 'INTERACTIVE VISUAL BLUEPRINT'}</span>
+          <span className="lve-scenario-tag">
+            <Smartphone size={12} />
+            <span>
+              {explainerType === 'pdp_mobile'
+                ? isArabic ? 'مخطط بصري: صفحة المنتج للهاتف (PDP)' : 'Visual Example: Mobile PDP Architecture'
+                : explainerType === 'funnel'
+                ? isArabic ? 'مخطط بصري: مسار الشراء ومعدلات التسرب' : 'Visual Example: Ecommerce Funnel Waterfall'
+                : explainerType === 'economics'
+                ? isArabic ? 'مخطط بصري: معادلة الأرباح وهامش المساهمة' : 'Visual Example: Unit Economics & Margins'
+                : explainerType === 'cart_drawer'
+                ? isArabic ? 'مخطط بصري: معمارية سلة الشراء الجانبية' : 'Visual Example: Slide-Out Cart Drawer'
+                : explainerType === 'thumb_zone'
+                ? isArabic ? 'مخطط بصري: خريطة الوصول الحراري للإبهام' : 'Visual Example: Mobile Thumb Zone'
+                : explainerType === 'ab_testing_stats'
+                ? isArabic ? 'مخطط بصري: منحنى الدلالة الإحصائية' : 'Visual Example: Statistical Significance'
+                : isArabic ? 'مخطط بصري: بنية Liquid وسرعة التحميل' : 'Visual Example: Shopify Liquid Pipeline'}
             </span>
-            <span className="lve-scenario-tag">
-              <Smartphone size={12} />
-              <span>
-                {explainerType === 'pdp_mobile'
-                  ? isArabic ? 'صفحة المنتج للهاتف (PDP)' : 'Mobile PDP Architecture'
-                  : explainerType === 'funnel'
-                  ? isArabic ? 'مسار الشراء ومعدلات التسرب' : 'Full Ecommerce Waterfall'
-                  : explainerType === 'economics'
-                  ? isArabic ? 'معادلة الأرباح وهامش المساهمة' : 'Unit Economics & Margins'
-                  : explainerType === 'cart_drawer'
-                  ? isArabic ? 'معمارية سلة الشراء الجانبية' : 'Slide-Out Cart Drawer'
-                  : explainerType === 'thumb_zone'
-                  ? isArabic ? 'خريطة الوصول الحراري للإبهام' : 'Mobile Thumb Heatmap'
-                  : explainerType === 'ab_testing_stats'
-                  ? isArabic ? 'منحنى الدلالة الإحصائية' : 'Statistical Bell Curve'
-                  : isArabic ? 'بنية Liquid وسرعة التحميل' : 'Shopify Liquid Pipeline'}
-              </span>
-            </span>
-          </div>
-          <h3 className="lve-title">
+          </span>
+          <h2 className="lve-title">
             {isArabic
-              ? `الشرح البصري والتطبيقي لـ: ${lesson.title}`
-              : `Visual Blueprint & Architecture: ${lesson.title}`}
-          </h3>
+              ? 'الشرح البصري التطبيقي'
+              : 'Visual Explanation'}
+          </h2>
           <p className="lve-subtitle">
             {isArabic
-              ? 'انقر على العناصر التفاعلية أدناه لفهم كيفية هندسة هذه الجزئية لتحقيق أعلى معدل تحويل حقيقي.'
-              : 'Click the interactive hotspots and controls below to inspect how this component is engineered for maximum conversion.'}
+              ? 'قارن بين النموذج المحسن والنمط المعيب لفهم التطبيق العملي.'
+              : 'Compare the optimized layout with the flawed baseline to see how this works in practice.'}
           </p>
         </div>
 
@@ -220,7 +214,7 @@ export const LessonVisualExplainer: React.FC<LessonVisualExplainerProps> = ({
             onClick={() => setViewMode('optimized')}
           >
             <CheckCircle2 size={13} />
-            <span>{isArabic ? 'النموذج الفائز المحسن' : 'CRO Winner (Optimized)'}</span>
+            <span>{isArabic ? 'النموذج المحسن' : 'Optimized'}</span>
           </button>
           <button
             type="button"
@@ -228,7 +222,7 @@ export const LessonVisualExplainer: React.FC<LessonVisualExplainerProps> = ({
             onClick={() => setViewMode('baseline')}
           >
             <XCircle size={13} />
-            <span>{isArabic ? 'النمط الشائع المعيب' : 'Flawed Baseline (Leaky)'}</span>
+            <span>{isArabic ? 'النمط المعيب' : 'Before (Baseline)'}</span>
           </button>
         </div>
       </div>
