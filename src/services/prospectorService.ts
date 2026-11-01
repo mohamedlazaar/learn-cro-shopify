@@ -225,7 +225,7 @@ Respond ONLY with a JSON array:
 [{"brand":"Brand Name","domain":"brand.com","reason":"Specific visual design flaw and why they are in the 300-20k visitor sweet spot"}]`;
 
 export async function discoverCandidates(c: DiscoveryCriteria, exclude: string[]): Promise<Candidate[]> {
-  if (!hasPiApiKey()) throw new Error('AI discovery needs VITE_PIAPI_API_KEY in .env. You can still paste domains manually.');
+  if (!hasPiApiKey()) throw new Error('AI discovery needs PIAPI_API_KEY in .env. You can still paste domains manually.');
   const userPrompt = `Find ${Math.max(c.count * 2, 8)} sweet-spot Shopify stores (between 300 and 20,000 monthly visitors) that have clear, visible design and layout flaws.
 - Niche: ${c.niche || 'boutique DTC / independent lifestyle brand'}
 - Market: ${c.market || 'US / UK / Europe / Canada / Australia'}
@@ -570,7 +570,7 @@ export function buildDossier(lead: Lead) {
 }
 
 export async function analyzeLead(lead: Lead): Promise<AiInsight> {
-  if (!hasPiApiKey()) throw new Error('AI analysis needs VITE_PIAPI_API_KEY in .env.');
+  if (!hasPiApiKey()) throw new Error('AI analysis needs PIAPI_API_KEY in .env.');
   const raw = await callPiApiChat({
     systemPrompt: ANALYSIS_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: `Store visual audit dossier:\n${JSON.stringify(buildDossier(lead), null, 1)}` }],

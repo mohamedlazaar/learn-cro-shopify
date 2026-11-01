@@ -1,6 +1,6 @@
 // PiAPI AI Service for CRO Lab
 // Endpoint: https://api.piapi.ai/v1/chat/completions
-// Model: gpt-4o-mini (default, configurable via VITE_PIAPI_MODEL)
+// Model: gpt-4o-mini (default, configurable via PIAPI_MODEL or VITE_PIAPI_MODEL)
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -15,17 +15,22 @@ export interface AiCompletionOptions {
 }
 
 const API_URL = 'https://api.piapi.ai/v1/chat/completions';
-export const DEFAULT_AI_MODEL = import.meta.env.VITE_PIAPI_MODEL || 'gpt-4o-mini';
+export const DEFAULT_AI_MODEL =
+  import.meta.env.PIAPI_MODEL || import.meta.env.VITE_PIAPI_MODEL || 'gpt-4o-mini';
 
 /**
- * Get active PiAPI Key strictly from environment (.env)
+ * Get active PiAPI Key from environment (.env / Vercel env)
  */
 export function getPiApiKey(): string {
-  return (import.meta.env.VITE_PIAPI_API_KEY || '').trim();
+  return (
+    import.meta.env.PIAPI_API_KEY ||
+    import.meta.env.VITE_PIAPI_API_KEY ||
+    ''
+  ).trim();
 }
 
 /**
- * Check if a valid API key is currently configured in .env
+ * Check if a valid API key is currently configured
  */
 export function hasPiApiKey(): boolean {
   const key = getPiApiKey();
@@ -40,7 +45,7 @@ export async function testPiApiConnection(): Promise<{ success: boolean; message
   if (!activeKey) {
     return {
       success: false,
-      message: 'VITE_PIAPI_API_KEY is not defined in your .env file.',
+      message: 'PIAPI_API_KEY is not defined in your environment (.env).',
     };
   }
 
@@ -336,5 +341,5 @@ Here are the 3 core CRO principles to apply immediately:
 3. **Clear Scientific Hypothesis Structure**:
    - *"If we [implement specific change], then [primary KPI] will increase by [X]%, because [consumer psychology / reduction of cognitive load]."*
 
-*Tip: Connect a valid API key in .env (\`VITE_PIAPI_API_KEY\`) to enable live real-time completions with the **${DEFAULT_AI_MODEL}** model!*`;
+*Tip: Connect a valid API key in .env (\`PIAPI_API_KEY\`) to enable live real-time completions with the **${DEFAULT_AI_MODEL}** model!*`;
 }

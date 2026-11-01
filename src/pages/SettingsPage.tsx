@@ -260,7 +260,7 @@ export const SettingsPage: React.FC = () => {
                 <Key size={15} color="var(--color-primary)" />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Configured in:</span>
                 <code style={{ fontSize: '0.82rem', padding: '2px 8px', background: 'var(--bg-app)', borderRadius: 4 }}>
-                  .env &rarr; VITE_PIAPI_API_KEY
+                  .env / Vercel &rarr; PIAPI_API_KEY
                 </code>
               </div>
               <span
@@ -282,7 +282,7 @@ export const SettingsPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <AlertTriangle size={13} /> Missing in .env
+                    <AlertTriangle size={13} /> Missing in Environment
                   </>
                 )}
               </span>
@@ -295,9 +295,9 @@ export const SettingsPage: React.FC = () => {
                 </span>
               ) : (
                 <span>
-                  To enable live AI completions, open <code>/cro-learning/.env</code> and configure:
+                  To enable live AI completions, configure <code>PIAPI_API_KEY</code> in <code>.env</code> or your Vercel Project Settings:
                   <pre style={{ margin: '6px 0 0', padding: '8px', background: 'var(--bg-app)', borderRadius: 4, fontFamily: 'monospace' }}>
-                    VITE_PIAPI_API_KEY=your_key_here
+                    PIAPI_API_KEY=your_key_here
                   </pre>
                 </span>
               )}
