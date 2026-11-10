@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Play, RotateCcw, Check, HelpCircle, Eye, AlertCircle } from 'lucide-react';
+import { Play, RotateCcw, HelpCircle, Eye, AlertCircle, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { Exercise } from '../../types/curriculum';
 import { renderLiquid, defaultMockStore } from '../../services/liquidEngine';
+import { evaluateLiquidExerciseWithAi, LiquidAiEvaluation } from '../../services/aiExerciseEvaluator';
 
 interface LiquidExerciseProps {
   exercise: Exercise;
@@ -30,6 +31,11 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
     return exercise.starterCode || '';
   });
 
+  const [isAiEvaluating, setIsAiEvaluating] = useState(false);
+  const [aiEvaluation, setAiEvaluation] = useState<LiquidAiEvaluation | null>(
+    initialSubmission?.aiEvaluation || null
+  );
+
   const [validationResult, setValidationResult] = useState<{
     tested: boolean;
     passed: boolean;
@@ -49,17 +55,17 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
 
   // Auto-save Liquid draft
   useEffect(() => {
-    if (liquidCode && liquidCode !== exercise.starterCode && !validationResult?.passed) {
+    if (liquidCode && liquidCode !== exercise.starterCode && !aiEvaluation?.passed) {
       try {
         localStorage.setItem(draftKey, JSON.stringify({ liquidCode }));
       } catch {}
     }
-  }, [liquidCode, validationResult, draftKey, exercise.starterCode]);
+  }, [liquidCode, aiEvaluation, draftKey, exercise.starterCode]);
 
   const renderedPreview = renderLiquid(liquidCode, defaultMockStore);
 
-  const handleVerify = () => {
-    let passed = false;
+  const handleVerify = async () => {
+    let localPassed = false;
     let message = '';
 
     if (exercise.slug === 'rewrite-image-tag-for-lcp') {
@@ -75,7 +81,7 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
       } else if (!hasEager) {
         message = 'Must specify loading: "eager" (never lazy load LCP hero images).';
       } else {
-        passed = true;
+        localPassed = true;
         message = 'LCP Image Tag Verified! Responsive widths, eager loading, and high priority confirmed.';
       }
     } else if (exercise.slug === 'build-sticky-atc-liquid-block') {
@@ -88,7 +94,7 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
       } else if (!hasSubmit) {
         message = 'Must include an Add to Cart submit button.';
       } else {
-        passed = true;
+        localPassed = true;
         message = 'Sticky ATC Block Verified! Product variables and CTA trigger confirmed.';
       }
     } else if (exercise.slug === 'personalized-cart-banner-liquid') {
@@ -101,21 +107,39 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
       } else if (!hasCode) {
         message = 'Must display promo code VIPGIFT when unlocked.';
       } else {
-        passed = true;
+        localPassed = true;
         message = 'Personalized Cart Banner Verified! Threshold and condition verified.';
       }
     } else {
-      passed = liquidCode.trim().length > (exercise.starterCode?.length || 0) + 15;
-      message = passed ? 'Liquid syntax verified!' : 'Please complete the Liquid implementation.';
+      localPassed = liquidCode.trim().length > (exercise.starterCode?.length || 0) + 15;
+      message = localPassed ? 'Liquid syntax verified!' : 'Please complete the Liquid implementation.';
     }
 
-    setValidationResult({ tested: true, passed, message });
+    setValidationResult({ tested: true, passed: localPassed, message });
 
-    if (passed) {
-      try {
-        localStorage.removeItem(draftKey);
-      } catch {}
-      onSuccess(exercise.xp, { liquidCode });
+    // Live AI Evaluation
+    setIsAiEvaluating(true);
+    try {
+      const aiResult = await evaluateLiquidExerciseWithAi(
+        exercise.title,
+        exercise.prompt,
+        liquidCode,
+        exercise.solution
+      );
+      setAiEvaluation(aiResult);
+
+      const passedOverall = (localPassed && aiResult.score >= 50) || aiResult.passed;
+
+      if (passedOverall) {
+        try {
+          localStorage.removeItem(draftKey);
+        } catch {}
+        onSuccess(exercise.xp, { liquidCode, aiEvaluation: aiResult });
+      }
+    } catch (err) {
+      console.error('AI evaluation error:', err);
+    } finally {
+      setIsAiEvaluating(false);
     }
   };
 
@@ -145,7 +169,11 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
           >
             <span>LIQUID TEMPLATE</span>
             <button
-              onClick={() => setLiquidCode(exercise.starterCode || '')}
+              onClick={() => {
+                setLiquidCode(exercise.starterCode || '');
+                setAiEvaluation(null);
+                setValidationResult(null);
+              }}
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -226,12 +254,26 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
         </div>
       </div>
 
-      {/* Buttons */}
+      {/* Buttons & Status */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={handleVerify} className="btn btn-primary">
-            <Play size={14} />
-            <span>Verify Liquid Solution</span>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={handleVerify}
+            disabled={isAiEvaluating}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            {isAiEvaluating ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                <span>AI Analyzing Liquid...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} color="#facc15" />
+                <span>Verify &amp; Live AI Review</span>
+              </>
+            )}
           </button>
           <button
             onClick={() => setShowSolution((s) => !s)}
@@ -241,9 +283,26 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
             <span>{showSolution ? 'Hide Solution' : 'Model Solution'}</span>
           </button>
         </div>
+
+        {aiEvaluation && (
+          <div
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-sm)',
+              background: aiEvaluation.passed ? 'var(--success-muted)' : 'var(--warning-muted)',
+              color: aiEvaluation.passed ? 'var(--success)' : 'var(--warning)',
+              fontWeight: 700,
+              fontSize: 13,
+            }}
+          >
+            {aiEvaluation.passed
+              ? `✓ Passed! AI Score: ${aiEvaluation.score}/100 (+${exercise.xp} XP)`
+              : `Score: ${aiEvaluation.score}/100`}
+          </div>
+        )}
       </div>
 
-      {validationResult && (
+      {validationResult && !aiEvaluation && (
         <div
           style={{
             padding: 14,
@@ -258,8 +317,94 @@ export const LiquidExercise: React.FC<LiquidExerciseProps> = ({
             fontWeight: 500,
           }}
         >
-          {validationResult.passed ? <Check size={16} /> : <AlertCircle size={16} />}
+          {validationResult.passed ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           <span>{validationResult.message}</span>
+        </div>
+      )}
+
+      {/* LIVE AI LIQUID EVALUATION REPORT */}
+      {aiEvaluation && (
+        <div
+          className="animate-fade-in"
+          style={{
+            padding: 20,
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Sparkles size={18} color="#f59e0b" />
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Live AI Liquid Code Review
+              </h4>
+            </div>
+            <div
+              style={{
+                padding: '4px 10px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: 12,
+                fontWeight: 700,
+                background: aiEvaluation.passed ? 'var(--success-muted)' : 'var(--danger-muted)',
+                color: aiEvaluation.passed ? 'var(--success)' : 'var(--danger)',
+              }}
+            >
+              {aiEvaluation.verdict}
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: 12,
+              background: 'var(--bg-app)',
+              borderRadius: 'var(--radius-sm)',
+              borderLeft: '3px solid var(--accent-primary)',
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-primary)', marginBottom: 4 }}>
+              LIQUID ARCHITECTURE &amp; SYNTAX FEEDBACK:
+            </div>
+            {aiEvaluation.liquidAnalysis}
+          </div>
+
+          <div
+            style={{
+              padding: 12,
+              background: 'var(--bg-app)',
+              borderRadius: 'var(--radius-sm)',
+              borderLeft: '3px solid #10b981',
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', marginBottom: 4 }}>
+              PERFORMANCE &amp; SHOPIFY CORE WEB VITALS IMPACT:
+            </div>
+            {aiEvaluation.performanceConsiderations}
+          </div>
+
+          {aiEvaluation.improvements && aiEvaluation.improvements.length > 0 && (
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+                Recommendations for Production Themes:
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {aiEvaluation.improvements.map((imp, idx) => (
+                  <li key={idx} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                    {imp}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

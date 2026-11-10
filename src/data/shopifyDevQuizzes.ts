@@ -2,13 +2,13 @@ import { Quiz } from '../types/curriculum';
 
 export const SHOPIFY_DEV_QUIZZES: Quiz[] = [
   // =========================================================================
-  // Module dev-1: Modern Shopify Tooling, CLI 3.x & Theme Anatomy
+  // Module dev-1: Modern Shopify Tooling, Shopify CLI & Theme Anatomy
   // =========================================================================
   {
     id: 'quiz-dev-module-1',
     moduleId: 'dev-module-1',
     slug: 'quiz-dev-module-1',
-    title: 'Developer Test: Shopify Architecture, CLI 3.x & Dawn Anatomy',
+    title: 'Developer Test: Shopify Architecture, Modern CLI & Theme Anatomy',
     questions: [
       {
         question: 'When developing a theme for a live client, why must you request Collaborator Access rather than a staff account?',
@@ -347,15 +347,15 @@ export const SHOPIFY_DEV_QUIZZES: Quiz[] = [
     title: 'Developer Test: Checkout Extensibility & UI Extension Hooks',
     questions: [
       {
-        question: 'Why did Shopify deprecate `checkout.liquid` in favor of Checkout Extensibility?',
+        question: 'What are the core technical and security advantages of Shopify Checkout Extensibility compared to legacy client-side checkout DOM scripting?',
         options: [
-          'To force all stores to migrate to WordPress.',
-          'Because `checkout.liquid` was insecure (vulnerable to script skimming), slow, and broke during platform updates like One-Page Checkout.',
-          'Because `checkout.liquid` could not support multiple languages.',
-          'To restrict checkout customization exclusively to Shopify employees.',
+          'It allows developers to inject raw jQuery scripts directly into payment iframes.',
+          'Extensions execute in isolated Web Worker sandboxes, eliminating payment skimming vulnerabilities while ensuring compatibility across Shop Pay and one-page checkouts.',
+          'It eliminates the need for SSL certificates on custom store domains.',
+          'It restricts checkout modifications exclusively to CSS style tags.',
         ],
         correctIndex: 1,
-        explanation: 'Checkout Extensibility sandboxes extensions in isolated Web Workers, eliminating credit card skimming vulnerabilities while guaranteeing upgradeability.',
+        explanation: 'Checkout Extensibility sandboxes extensions in isolated Web Workers, eliminating credit card skimming vulnerabilities while guaranteeing upgradeability across Shop Pay and accelerated checkouts.',
       },
       {
         question: 'Which hook in `@shopify/ui-extensions-react/checkout` allows an extension to add a pre-purchase upsell variant directly into the active checkout session?',
@@ -428,13 +428,13 @@ export const SHOPIFY_DEV_QUIZZES: Quiz[] = [
   },
 
   // =========================================================================
-  // Module dev-9: Shopify App Architecture, Remix & App Bridge 4.0
+  // Module dev-9: Shopify App Architecture, React Router v7 & App Bridge 4.0
   // =========================================================================
   {
     id: 'quiz-dev-module-9',
     moduleId: 'dev-module-9',
     slug: 'quiz-dev-module-9',
-    title: 'Developer Test: Remix App Architecture, Session Tokens & App Bridge',
+    title: 'Developer Test: Full-Stack App Architecture, React Router v7 & App Bridge',
     questions: [
       {
         question: 'Why are standard browser cookies unreliable for authenticating embedded Shopify apps in modern browsers?',
@@ -513,6 +513,17 @@ export const SHOPIFY_DEV_QUIZZES: Quiz[] = [
         ],
         correctIndex: 1,
         explanation: 'GraphQL returns HTTP 200 as long as the query document was syntactically valid. Domain validation failures are returned in `data[mutationName].userErrors`.',
+      },
+      {
+        question: 'What is the official Shopify platform status of the Admin REST API for modern app development?',
+        options: [
+          'REST is the recommended standard for all new Shopify apps.',
+          'The Admin REST API is officially deprecated and frozen; new public App Store apps and custom apps are required to use GraphQL ONLY.',
+          'REST is only supported on Shopify Plus stores.',
+          'REST and GraphQL have identical feature parity and both receive all new platform features.',
+        ],
+        correctIndex: 1,
+        explanation: 'Shopify formally deprecated the entire Admin REST API on October 1, 2024, froze all new feature development on REST, and mandated that all new App Store apps and custom apps use the GraphQL Admin API exclusively (effective April 1, 2025).',
       },
     ],
   },
@@ -642,12 +653,12 @@ export const SHOPIFY_DEV_QUIZZES: Quiz[] = [
         question: 'How does Hydrogen optimize slow third-party API calls (like customer reviews) without blocking page rendering?',
         options: [
           'By running them on the customer’s phone.',
-          'Through Streaming SSR and deferred data fetching using Remix `defer`, `<Await>`, and React `<Suspense>`.',
+          'Through Streaming SSR and deferred data fetching using React Router v7 / Remix streaming and React <Suspense>.',
           'By caching responses indefinitely in localStorage.',
           'By omitting the data altogether on mobile devices.',
         ],
         correctIndex: 1,
-        explanation: 'Hydrogen uses Remix streaming SSR: critical above-the-fold HTML streams immediately, while slower secondary queries stream in as they resolve.',
+        explanation: 'Hydrogen uses streaming SSR: critical above-the-fold HTML streams immediately, while slower secondary queries stream in as they resolve wrapped in Suspense.',
       },
     ],
   },

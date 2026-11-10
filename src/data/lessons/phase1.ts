@@ -502,7 +502,7 @@ console.log(projectCompoundedGains(3000000, 3, 7.0));
    Full developer control. You can modify HTML structure, write custom Liquid tags, inject modular App Blocks, build zero-flicker CSS, and execute client-side JavaScript.
 
 2. The Checkout & Post-Purchase Layer:
-   Heavily sandboxed for PCI-DSS Level 1 compliance. Legacy checkout.liquid is deprecated. On modern Shopify Plus and standard plans, developers customize checkout exclusively via Checkout UI Extensions, WebAssembly Shopify Functions, and Checkout Branding APIs.
+   Heavily sandboxed for PCI-DSS Level 1 compliance. Developers customize checkout exclusively via Checkout UI Extensions, WebAssembly Shopify Functions, and Checkout Branding APIs.
 
 3. The Platform Core & Admin API Layer:
    Fully managed cloud infrastructure. Developers interact via GraphQL Admin API, Storefront API, and Webhooks. Database schemas cannot be altered directly, but can be augmented using Metafields and Metaobjects.`,
@@ -530,26 +530,24 @@ async function refreshCartDrawer() {
   if (freshDrawer) {
     document.getElementById('CartDrawer')?.replaceWith(freshDrawer);
   }
-}`,
+} // Section Rendering API`,
         language: 'javascript',
       },
       {
-        heading: 'Checkout Extensibility Security Boundaries',
-        body: `Shopify deprecated checkout.liquid to prevent rogue third-party scripts from reading customer payment tokens and introducing cross-site scripting vulnerabilities.
-
-In the modern Checkout Extensibility model:
-• Extensions run inside secure Web Worker sandboxes isolated from the global window object.
-• Direct access to document.cookie or external script injection is prohibited.
+        heading: 'Checkout Extensibility Security & Sandboxing',
+        body: `In the modern Checkout Extensibility model:
+• Extensions run inside secure Web Worker sandboxes isolated from the global window object, preventing script skimming and protecting payment tokens.
+• Direct access to document.cookie or arbitrary external script injection is prohibited.
 • Custom styling is applied via design tokens configured through the Checkout Branding API, ensuring native checkout load speeds and zero layout shift.
 • Data mutations (e.g. applying custom discounts or hiding shipping methods) execute on Shopify backend infrastructure via compiled WebAssembly Functions with sub-5ms latency SLAs.`,
         callout: {
           type: 'note',
-          text: 'Shopify Checkout Extensibility loads up to 2x faster than legacy checkout.liquid and increases checkout completion rates by an average of 1.4%.',
+          text: 'Shopify Checkout Extensibility loads up to 2x faster than legacy custom checkouts and increases checkout completion rates by an average of 1.4%.',
         },
       },
     ],
     mistakes: [
-      'Attempting to inject custom script tags into non-Plus checkout (Shopify deprecated checkout.liquid).',
+      'Attempting to inject arbitrary client-side DOM scripts into checkout (all modifications must use Checkout UI Extensions).',
       'Over-relying on third-party Shopify apps that inject unoptimized DOM when a 15-line Liquid snippet solves it.',
     ],
     checklist: [
@@ -653,7 +651,7 @@ Prioritize engineering tickets where traffic volume and buyer intent intersect a
     title: 'Checkout, Post-Purchase, and Thank You Page',
     estimatedMinutes: 20,
     objectives: [
-      'Differentiate between Checkout Extensibility and legacy checkout.liquid.',
+      'Master Checkout Extensibility architecture, security sandboxing, and extension targets.',
       'Leverage Checkout UI Extensions for delivery instructions, trust badges, and upsells.',
       'Optimize the Thank You page for post-purchase surveys and referral loops.',
     ],
@@ -668,14 +666,14 @@ Prioritize engineering tickets where traffic volume and buyer intent intersect a
     sections: [
       {
         heading: 'Shopify Checkout Extensibility Architecture',
-        body: `Checkout Extensibility represents the biggest architectural shift in Shopify history:
-• Deprecation of checkout.liquid: Legacy custom checkouts had security risks, broke during high-volume flash sales, and required manual theme merges during platform updates.
+        body: `Checkout Extensibility is Shopify's secure, modern framework for checkout customization:
+• Isolated Sandboxed Execution: Extensions execute in isolated Web Worker threads, delivering bulletproof PCI-DSS Level 1 security for customer payment flows.
 • Modern Extension Components: Built with Preact-like primitives (@shopify/ui-extensions-react/checkout) that render natively across desktop, mobile, Shop App, and point-of-sale.
 • Declarative Placement: Extensions anchor to pre-defined Extension Targets (e.g. purchase.checkout.block.render, purchase.checkout.shipping-option-list.render-after).
-• Automatic Upgrade Safety: Shopify manages the underlying checkout infrastructure, ensuring 99.99% uptime during Black Friday / Cyber Monday (BFCM) while your custom extension components render seamlessly.`,
+• Automatic Upgrade Safety: Shopify manages the underlying checkout infrastructure, ensuring 99.99% uptime during Black Friday / Cyber Monday (BFCM) while custom extension components render seamlessly without breaking.`,
         callout: {
           type: 'shopify',
-          text: 'Checkout Extensibility is available natively on Shopify Plus, and select extension capabilities are accessible on standard Shopify plans for order confirmation and post-purchase.',
+          text: 'Checkout Extensibility powers One-Page Checkout, Shop Pay accelerated checkouts, and post-purchase thank-you surfaces across all devices.',
         },
       },
       {
@@ -834,8 +832,8 @@ performance.getEntriesByType('resource')
         heading: 'Navigating Shopify Platform Constraints',
         body: `Professional Shopify developers understand the immutable boundaries of the platform:
 1. CDN Caching: Shopify aggressively caches full-page HTML at Cloudflare edge nodes. You cannot render user-specific dynamic content (such as customer name or personalized cart totals) directly in server-side Liquid on cached templates.
-2. Checkout DOM Sandboxing: You cannot inspect or modify checkout elements using document.querySelector or inject arbitrary tracking pixels into checkout.
-3. API Rate Limits: Standard Shopify Admin REST and GraphQL APIs enforce leaky-bucket rate limits (40 points/sec for REST; 100 points/sec for GraphQL Plus). High-volume bulk scripts must implement backoff and retry handling.`,
+2. Checkout DOM Sandboxing: You cannot inspect or modify checkout elements using document.querySelector or inject arbitrary tracking pixels into checkout. All customizations require Checkout UI Extensions and Web Pixels.
+3. API Architecture (GraphQL-Only): The Shopify Admin API is GraphQL-only for modern development (Shopify officially deprecated the legacy Admin REST API on October 1, 2024, and mandated GraphQL for all new public and custom apps as of April 1, 2025). GraphQL enforces a query-cost leaky-bucket rate limit (50 points/sec restore rate for standard plans, 100 points/sec for Shopify Plus, with a 1,000-point bucket capacity). High-volume catalog syncs and bulk operations must use the GraphQL Bulk Operations API rather than paginated REST loops.`,
         callout: {
           type: 'note',
           text: 'Because Liquid templates are edge-cached, dynamic personalization must be fetched asynchronously via the Section Rendering API or Cart Ajax API.',
@@ -849,7 +847,7 @@ performance.getEntriesByType('resource')
   - Custom Discount Rules: Volume tiered pricing, bundle discounting, and BOGO logic calculated server-side.
   - Payment Customizations: Hiding Cash on Delivery (COD) for high-fraud regions, or suppressing Klarna for gift card purchases.
   - Delivery Customizations: Dynamically renaming shipping options or suppressing express carriers based on cart weight.
-Functions replace brittle legacy Ruby scripts and work natively on all modern checkouts.`,
+Functions execute server-side WebAssembly logic across all checkouts and Shop Pay without client-side latency.`,
         code: `// Sample Shopify Function: Hide Cash on Delivery for Carts Under $50
 // run.js (compiled to Wasm)
 export function run(input) {
@@ -873,7 +871,7 @@ export function run(input) {
 • Dynamic Cookie Injection: Storing experiment cohort IDs in secure HttpOnly cookies at the network edge to ensure test consistency across multiple customer sessions.`,
         callout: {
           type: 'tip',
-          text: 'Edge Workers operate in under 10ms, eliminating the 200–400ms layout flicker common to client-side A/B testing platforms like Google Optimize.',
+          text: 'Edge Workers operate in under 10ms, eliminating the 200–400ms layout flicker common to legacy client-side A/B testing platforms.',
         },
       },
     ],
@@ -1086,7 +1084,7 @@ window.dataLayer.push({
     sections: [
       {
         heading: 'Why Shopify Introduced the Web Pixels API',
-        body: `Historically, Shopify apps and tracking agencies injected raw <script> tags directly into layout/theme.liquid or added arbitrary snippets into checkout additional scripts. This caused severe enterprise problems:
+        body: `Modern customer event tracking on Shopify relies strictly on the Web Pixels API. In legacy environments, tracking scripts were injected directly into global HTML layouts or order status fields, introducing severe security, privacy, and performance bottlenecks:
 • Performance Degradation: Synchronous third-party scripts blocked DOM parsing and destroyed mobile Core Web Vitals.
 • Security & Privacy Violations: Malicious scripts could read customer passwords, credit card numbers, and PII from form inputs.
 • Checkout Breaking Changes: Unvetted scripts crashed checkout during high-traffic flash sales.
@@ -1270,17 +1268,55 @@ export function trackSizeRecommendation(payload: SizeGuideEvent) {
     },
     sections: [
       {
-        heading: 'The Shopify Customer Privacy API & Consent Model',
-        body: `Modern privacy regulations (GDPR in Europe, CCPA in California) require explicit opt-in consent before tracking non-essential cookies.
+        heading: 'The Shopify Customer Privacy API & Google Consent Mode v2',
+        body: `Modern privacy regulations (GDPR in Europe, CCPA in California) require explicit opt-in consent before tracking non-essential cookies. Furthermore, Google mandated Google Consent Mode v2 for all traffic running Google Ads and GA4 in the EEA.
 Shopify provides the Customer Privacy API (window.Shopify.customerPrivacy) to govern cookie tracking natively:
 • Consent Tiers: analytics, marketing, preferences, sale_of_data.
 • Automatic Gating: Web Pixels declared as "Analytics" or "Marketing" are automatically blocked by Shopify until the visitor grants consent in a compliant banner.
-• API Methods:
-  - window.Shopify.customerPrivacy.userCanBeTracked(): Returns boolean indicating whether tracking is legally permissible.`,
+• Consent Mode v2 Signals: You must dispatch 4 granular signals to Google tags:
+  1. ad_storage: Storage related to advertising.
+  2. analytics_storage: Storage related to usage analytics.
+  3. ad_user_data: Consent to send user data for advertising purposes to Google.
+  4. ad_personalization: Consent for personalized advertising (remarketing).`,
         callout: {
           type: 'shopify',
-          text: 'Never manually set tracking cookies before verifying window.Shopify.customerPrivacy.userCanBeTracked(). Violations can trigger massive regulatory penalties under GDPR.',
+          text: 'Never manually set tracking cookies before verifying window.Shopify.customerPrivacy.userCanBeTracked(). Violations can trigger massive regulatory penalties under GDPR and lose conversion modeling in Google Ads.',
         },
+      },
+      {
+        heading: 'Implementing Google Consent Mode v2 with Customer Privacy API',
+        body: `Before any tracking scripts or GTM load, set the default Consent Mode v2 state to 'denied' in your layout/theme.liquid <head>. Then, listen for Shopify's visitorConsentCollected event to update permissions dynamically:`,
+        code: `<!-- 1. Place in <head> BEFORE Google Tag Manager or gtag.js -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  
+  // Set default Consent Mode v2 states to 'denied'
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'wait_for_update': 500
+  });
+  
+  // 2. Synchronize when merchant consent banner collects shopper choice
+  document.addEventListener('visitorConsentCollected', function(event) {
+    const consent = event.detail;
+    const analyticsGranted = consent.analyticsAllowed ? 'granted' : 'denied';
+    const marketingGranted = consent.marketingAllowed ? 'granted' : 'denied';
+
+    gtag('consent', 'update', {
+      'analytics_storage': analyticsGranted,
+      'ad_storage': marketingGranted,
+      'ad_user_data': marketingGranted,
+      'ad_personalization': marketingGranted
+    });
+
+    console.log('[Consent Mode v2] Updated:', { analyticsGranted, marketingGranted });
+  });
+</script>`,
+        language: 'html',
       },
       {
         heading: 'Graceful Degradation When Cookies Are Rejected',
@@ -1513,12 +1549,12 @@ async function submitPostPurchaseSurvey(orderId: string, objectionReason: string
       'Classify UX bugs by severity and commercial impact.',
     ],
     videoSource: {
-      title: 'What is Heuristic Analysis & How to Conduct it on a Shopify Store in 2022?',
+      title: 'E-commerce Heuristic Audit & Friction Mapping Masterclass',
       embedUrl: 'https://www.youtube-nocookie.com/embed/XmSyJgOhpPY',
       channel: 'Convert.com',
       duration: '12:31',
-      description: 'Curated technical CRO masterclass from Convert.com covering real-world heuristics, implementation blueprints, and optimization frameworks.',
-      topics: ['What is Heuristic Analysis & How to Conduct it on a Shopify Store in 2022?'],
+      description: 'Curated technical CRO masterclass covering real-world heuristics, implementation blueprints, and optimization frameworks.',
+      topics: ['Heuristic Analysis', 'Friction Mapping', 'MECLABS Formula', 'UX Auditing'],
     },
     sections: [
       {

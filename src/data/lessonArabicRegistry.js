@@ -65,10 +65,10 @@ export const LESSON_ARABIC_REGISTRY = {
             'تشغيل خادم التطوير المحلي المباشر بأمر shopify theme dev مع ميزة التحديث الفوري اللحظي.',
             'تطبيق استراتيجية فروع Git الاحترافية وربط مستودع GitHub بلوحة تحكم شوبيفاي للنشر التلقائي.',
         ],
-        keyTakeaway: 'الاعتماد على Shopify CLI 3.x وإدارة الفروع عبر Git يمنحك سرعة تنفيذ مضاعفة ويحمي متجر العميل من أي أخطاء أو أعطال أثناء التطوير.',
+        keyTakeaway: 'الاعتماد على Shopify CLI الحديث وإدارة الفروع عبر Git يمنحك سرعة تنفيذ مضاعفة ويحمي متجر العميل من أي أخطاء أو أعطال أثناء التطوير.',
         mistakes: [
             'تعديل ملفات الثيم مباشرة في محرر المتصفح على المتجر الحي دون استخدام خادم محلي ونظام Git.',
-            'استخدام أدوات قديمة مثل Theme Kit بعد أن أصبحت أداة Shopify CLI 3.x هي المعيار الرسمي الوحيد.',
+            'التطوير خارج أداة Shopify CLI الرسمية والمعتمدة لإدارة مزامنة الثيمات.',
             'نسيان حفظ التعديلات في Git قبل سحب التغييرات من المتجر البعيد.',
         ],
         checklist: [
@@ -79,28 +79,28 @@ export const LESSON_ARABIC_REGISTRY = {
         ],
         sections: [
             {
-                heading: 'إعداد بيئة العمل وتثبيت أداة Shopify CLI 3.x',
-                body: `تُعد أداة Shopify CLI 3.x مركز القيادة الموحد لمطوري شوبيفاي العصريين. بُنيت على Node.js لتحل تماماً محل الأدوات القديمة مثل Theme Kit.
+                heading: 'إعداد بيئة العمل وتثبيت أداة Shopify CLI الحديثة',
+                body: `تُعد أداة Shopify CLI مركز القيادة الموحد لمطوري شوبيفاي العصريين لتطوير الثيمات والتطبيقات والإضافات باحترافية وسرعة فائقة.
 
 متطلبات النظام الأساسية:
-• Node.js: إصدار الدعم طويل الأمد (LTS v18 أو v20). تحقق عبر الأمر: node -v.
+• Node.js: إصدار الدعم طويل الأمد الحديث (v20 أو v22 LTS). تحقق عبر الأمر: node -v.
 • مدير الحزم: npm أو pnpm أو yarn.
 • Git: أحدث إصدار مع إعداد مفاتيح SSH لمستودعات GitHub.
 
 التثبيت العام:
-قم بتشغيل الأمر: npm install -g @shopify/cli@latest
-تحقق من اكتمال التثبيت عبر: shopify version وتأكد من أنك على الإصدار 3.50 فما فوق.`,
+قم بتشغيل الأمر: npm install -g @shopify/cli @shopify/theme
+تحقق من اكتمال التثبيت عبر: shopify version.`,
                 simpleExplanation: 'Shopify CLI هي الأداة التي تربط جهازك بالمتجر السحابي لتعديل الكود ورؤية النتائج فوراً.',
                 calloutText: 'نصيحة تقنية: نفذ أمر shopify version دورياً؛ يتم تحديث الأداة باستمرار بمزايا تسريع التطوير وفحص الكود التلقائي.',
             },
         ],
     },
     'dawn-theme-directory-structure-settings-schema': {
-        title: 'هيكل مجلدات ثيم Dawn ومخطط الإعدادات (settings_schema.json)',
-        subtitle: 'تشريح بنية الثيم المرجعي من شوبيفاي، تصميم لوحة التخصيص وإدارة الأصول والترجمات',
+        title: 'هيكل مجلدات الثيمات الحديثة، مجلد /blocks ومخطط الإعدادات (settings_schema.json)',
+        subtitle: 'تشريح بنية الثيمات الحديثة ومجلد Blocks، تصميم لوحة التخصيص وإدارة الأصول والترجمات',
         objectivesHead: 'أهداف ومخرجات التعلم:',
         objectives: [
-            'فهم التقسيم المعماري لمجلدات الثيم: layout, templates, sections, snippets, assets, config, locales.',
+            'فهم التقسيم المعماري لمجلدات الثيم الثمانية: blocks, layout, templates, sections, snippets, assets, config, locales.',
             'برمجة مخطط إعدادات الثيم العامة settings_schema.json وتوفير عناصر تحكم مرنة للتاجر.',
             'إدارة إعدادات settings_data.json وفصل خيارات التصميم عن ملفات الكود البرمجي.',
             'تطبيق نظام التوطين متعدد اللغات عبر ملفات JSON داخل مجلد locales.',
@@ -390,11 +390,11 @@ export const LESSON_ARABIC_REGISTRY = {
         ],
     },
     'checkout-extensibility-paradigm-checkout-liquid-deprecation': {
-        title: 'امتدادات صفحة الدفع (Checkout Extensibility): عصر ما بعد checkout.liquid',
+        title: 'امتدادات صفحة الدفع (Checkout Extensibility): المعمارية الحديثة ونقاط الاستهداف',
         subtitle: 'تطوير وتخصيص تجربة الدفع الأكثر أماناً وسرعة على شوبيفاي لمتاجر بلس والمتاجر المتقدمة',
         objectivesHead: 'أهداف ومخرجات التعلم:',
         objectives: [
-            'فهم أسباب استبدال checkout.liquid بنظام Checkout Extensibility القائم على تطبيقات React وWebAssembly.',
+            'فهم معمارية Checkout Extensibility القائمة على تطبيقات React المنعزلة وWebAssembly.',
             'التعرف على نقاط الاستهداف (Extension Targets) لإضافة عروض إضافية وتخصيصات الدفع.',
             'ضمان سرعة صفحة الدفع وتحقيق أعلى درجات الأمان وحماية بيانات البطاقات الائتمانية.',
         ],
@@ -444,11 +444,11 @@ export const LESSON_ARABIC_REGISTRY = {
         ],
     },
     'shopify-functions-architecture-wasm-replacing-ruby-scripts': {
-        title: 'معمارية دوال شوبيفاي (Shopify Functions): كود WebAssembly بديل السكربتات',
+        title: 'معمارية دوال شوبيفاي (Shopify Functions): كود WebAssembly فائق السرعة',
         subtitle: 'بناء منطق تسعير وشحن وتوصيل مخصص فائق السرعة يعمل في أقل من 5 ميلي ثانية',
         objectivesHead: 'أهداف ومخرجات التعلم:',
         objectives: [
-            'فهم معمارية Shopify Functions المبنية على WebAssembly كبديل رسمي لـ Ruby Scripts.',
+            'فهم معمارية Shopify Functions المعتمدة على WebAssembly بسرعة معالجة أقل من 5 ميلي ثانية.',
             'كتابة دوال شوبيفاي باستخدام لغة Rust أو JavaScript المترجمة لـ WASM.',
             'تطبيق قواعد تسعير وخصومات حصرية لمشتركي VIP أو طلبات الجملة B2B.',
         ],

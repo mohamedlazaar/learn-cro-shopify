@@ -233,7 +233,7 @@ Requirements:
     datasetDescription: 'Shopify Checkout UI Extensions Target Specifications.',
     dataset: {
       extensionObjective: 'Display a $5 shipping insurance checkbox upsell inside the order summary section of the single-page checkout.',
-      legacySolution: 'checkout.liquid script injection (deprecated/blocked by Shopify)',
+      architecture: 'Shopify Checkout Extensibility Web Worker Target',
     },
     prompt: `You are building a custom $5 shipping warranty upsell extension in modern Checkout Extensibility. Which extension target must you hook into so the widget renders directly inside the order summary right below the line items?`,
     options: [

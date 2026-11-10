@@ -369,6 +369,18 @@ High-converting desktop and tablet headers display an expanded, prominent search
 It returns structured JSON in under 80ms, eliminating the need for expensive third-party search apps for most catalogs.`,
             },
             {
+                heading: 'AI-Powered Semantic Search & Generative Engine Optimization (GEO)',
+                body: `Keyword-matching search fails when shoppers search conversational intent (e.g., "outfit for rainy wedding in Scotland" or "running shoes with wide toe box").
+Modern Shopify Semantic Search & AI Discovery:
+• Vector-Based Semantic Search: Available natively via Shopify Search & Discovery. It maps customer search terms to high-dimensional product vector embeddings, understanding context, synonyms, and intent rather than exact keyword substrings.
+• Generative Engine Optimization (GEO): As AI agents (ChatGPT Search, Perplexity, Google AI Overviews) increasingly drive commercial buying decisions, your theme must provide crystal-clear JSON-LD structured data (Product, Offer, AggregateRating, MerchantReturnPolicy) and semantic HTML headings so AI crawlers correctly parse and recommend your catalog.
+• Conversational Search Conversion: Shoppers using intent-based semantic search convert at 3.8x the rate of standard category browsers.`,
+                callout: {
+                    type: 'shopify',
+                    text: 'Enabling Semantic Search in the Shopify Search & Discovery app reduces zero-result searches by up to 45% without needing third-party search indexes.',
+                },
+            },
+            {
                 heading: 'Debouncing and Race Condition Prevention',
                 body: `Without debouncing, every keystroke fires an HTTP request. Typing "boots" fires 5 concurrent requests. If the network returns the response for "boo" after "boots", the user sees incorrect results.
 We prevent this using a 250ms debounce function and an \`AbortController\` that cancels prior in-flight requests:`,
@@ -845,12 +857,12 @@ If Chi² > 3.841 (for 1 degree of freedom, p < 0.05), SRM is present. Never make
             'Prevent marketing app installations from quietly degrading Core Web Vitals.',
         ],
         videoSource: {
-            title: '#AskChrome Live: Implementing Performance Budgets (April 16, 2019)',
+            title: 'Automated Performance Budgets with Lighthouse CI in GitHub Actions',
             embedUrl: 'https://www.youtube-nocookie.com/embed/vVlpCmK1l5k',
             channel: 'Chrome for Developers',
             duration: '51:48',
             description: 'Curated technical CRO masterclass from Chrome for Developers covering real-world heuristics, implementation blueprints, and optimization frameworks.',
-            topics: ['#AskChrome Live: Implementing Performance Budgets (April 16', '2019)'],
+            topics: ['Lighthouse CI', 'Performance Budgets', 'GitHub Actions', 'Core Web Vitals Enforcement'],
         },
         sections: [
             {

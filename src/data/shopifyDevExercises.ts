@@ -442,20 +442,20 @@ export function useAgeGateValidation(ageConfirmed: boolean) {
   {
     id: 'ex-dev-m8-mcq',
     moduleId: 'dev-module-8',
-    slug: 'shopify-functions-vs-ruby-scripts-quiz',
-    title: 'Performance Evaluation: Shopify Functions vs Legacy Ruby Scripts',
+    slug: 'shopify-functions-wasm-architecture-quiz',
+    title: 'Architecture Evaluation: Shopify Functions WebAssembly Execution',
     type: 'multiple-choice',
     difficulty: 'medium',
     xp: 20,
-    prompt: 'What was the primary reason Shopify replaced Ruby Scripts with WebAssembly Shopify Functions for custom checkout logic?',
+    prompt: 'What is the primary technical reason Shopify built Shopify Functions on WebAssembly (Wasm) for custom backend logic?',
     options: [
       'Ruby is an extinct programming language.',
-      'Interpreted Ruby scripts suffered from unpredictable execution latencies and concurrency bottlenecks during BFCM flash sales, whereas Wasm executes with sub-5ms latency.',
+      'WebAssembly executes deterministically with guaranteed sub-5ms latency and zero cold starts inside Shopify edge infrastructure, even during peak BFCM flash sales.',
       'Functions only work on mobile devices.',
-      'Ruby scripts did not support discount codes.',
+      'Functions replace the need for an ecommerce database.',
     ],
     correctIndex: 1,
-    explanation: 'WebAssembly compiles to near-native machine code that runs in isolated V8 sandboxes with guaranteed execution times under 5 milliseconds at peak global traffic.',
+    explanation: 'WebAssembly compiles to near-native machine bytecode that runs in isolated sandboxes with guaranteed execution times under 5 milliseconds at peak global traffic.',
   },
 
   // =========================================================================

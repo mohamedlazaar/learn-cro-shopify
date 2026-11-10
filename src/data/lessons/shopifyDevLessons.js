@@ -29,7 +29,7 @@ export const SHOPIFY_DEV_LESSONS = [
 
 The Core Data Hierarchy:
 • Shop: The root tenant container holding store settings, default currency, and primary domain.
-• Product & Variants: The merchandising model where a single Product can contain up to 100 Variants (differentiated by up to 3 options like Size, Color, Material).
+• Product & Variants: The merchandising data model where a single Product can contain up to 2,048 Variants via GraphQL APIs (differentiated by up to 3 options like Size, Color, Material).
 • Collection: Smart (automated rule-based) or Custom (manually curated) product groupings.
 • Customer: Profile record containing contact identities, tax-exempt statuses, and order histories.
 • Order & Draft Order: Financial transactions capturing line items, shipping lines, tax lines, and fulfillment states.
@@ -109,7 +109,7 @@ shopify theme info`,
         title: 'Shopify CLI 3.x Workflow, Git Version Control & Hot-Reloading',
         estimatedMinutes: 40,
         objectives: [
-            'Install and configure Node.js, Ruby dependencies, and Shopify CLI 3.x on macOS/Linux/Windows',
+            'Install and configure Node.js, package managers, and Shopify CLI on macOS/Linux/Windows',
             'Initialize themes with `shopify theme init` and pull existing themes with `shopify theme pull`',
             'Run `shopify theme dev` to create a live local development server with instant Hot Reload',
             'Implement professional Git branching strategy (main -> staging -> feature/xyz) with Shopify GitHub integration',
@@ -120,25 +120,25 @@ shopify theme info`,
             channel: 'Bosidev | Shopify Developer',
             duration: '7:03',
             description: 'Curated YouTube walkthrough from Bosidev | Shopify Developer that complements this lesson. Watch it alongside the written sections below.',
-            topics: ['Shopify CLI 3.x', 'shopify theme dev', 'Hot Reloading', 'GitHub Sync'],
+            topics: ['Shopify CLI', 'shopify theme dev', 'Hot Reloading', 'Theme Editor Sync'],
         },
         sections: [
             {
-                heading: 'Environment Setup: Node.js, Ruby & Shopify CLI 3.x Installation',
-                body: `Shopify CLI 3.x is the unified developer command center for modern theme and app engineering. Built on Node.js, it replaces legacy tools like Theme Kit and CLI 2.x.
+                heading: 'Environment Setup: Node.js & Modern Shopify CLI Installation',
+                body: `Shopify CLI is the unified developer command center for modern theme, app, and extension engineering. Built on Node.js, it provides full local development server environments, semantic versioning, and automated updates.
 
 System Prerequisites:
-• Node.js: Active LTS (v18.x or v20.x). Verify with \`node -v\`.
-• Package Manager: \`npm\`, \`yarn\`, or \`pnpm\`.
-• Git: Latest version configured with SSH keys.
-• Ruby: (Optional, only required if using legacy Theme Check gem; CLI 3.x bundles Theme Check natively).
+• Node.js: Modern Active LTS (v20.x or v22.12+). Verify with \`node -v\`.
+• Package Manager: \`npm\`, \`pnpm\`, \`yarn\`, or \`bun\`.
+• Git: Version 2.28+ configured with SSH keys.
+• Ruby: Not required (modern Shopify CLI bundles Theme Check directly via native WebAssembly binaries).
 
-Global Installation:
-Run \`npm install -g @shopify/cli@latest\` to install the CLI.
-Verify installation with \`shopify version\` to confirm you are on version 3.50+.`,
+Installation:
+Run \`npm install -g @shopify/cli @shopify/theme\` (or via Homebrew on macOS: \`brew tap shopify/shopify && brew install shopify-cli\`).
+Verify installation with \`shopify version\`.`,
                 callout: {
                     type: 'tip',
-                    text: 'Always run `shopify version` before starting a project. Shopify CLI updates frequently with new flags and performance improvements for local theme development.',
+                    text: 'Always run `shopify version` before starting a project. Modern Shopify CLI provides real-time JSON contracts, automatic telemetry, and two-way theme editor synchronization.',
                 },
             },
             {
@@ -209,36 +209,38 @@ Always pull remote JSON templates before merging code into \`main\` to prevent r
         id: 'dev-m1-l3',
         moduleId: 'dev-module-1',
         slug: 'dawn-theme-directory-structure-settings-schema',
-        title: 'Dawn Theme Anatomy: Directory Architecture & settings_schema.json',
+        title: 'Modern Theme Anatomy: Directory Architecture, /blocks & settings_schema.json',
         estimatedMinutes: 45,
         objectives: [
-            'Deconstruct the mandatory 7 top-level directories of an Online Store 2.0 theme',
+            'Deconstruct the standardized 8 top-level directories of modern themes, including the root /blocks folder',
+            'Understand how Theme Blocks enable component-based nested hierarchies up to 8 levels deep',
             'Understand how layout/theme.liquid wraps global storefront rendering',
             'Master config/settings_schema.json to create custom typography, color palettes, and global theme settings',
             'Enforce Theme Check static analysis rules to catch Liquid syntax and accessibility bugs early',
         ],
         videoSource: {
-            title: 'Shopify Dawn Theme Customization (Complete Guide)',
+            title: 'Shopify Modern Theme Architecture & Theme Blocks Guide',
             embedUrl: 'https://www.youtube-nocookie.com/embed/ElIk_2hqhTE',
             channel: 'Jason Gandy',
             duration: '1:15:24',
-            description: 'Curated YouTube walkthrough from Jason Gandy that complements this lesson. Watch it alongside the written sections below.',
-            topics: ['Theme Anatomy', 'settings_schema.json', 'Theme Check', 'Assets Pipeline'],
+            description: 'Curated technical walkthrough covering modern theme directory structure, Theme Blocks, and settings schema.',
+            topics: ['Theme Anatomy', 'Theme Blocks (/blocks)', 'settings_schema.json', 'Theme Check'],
         },
         sections: [
             {
-                heading: 'The 7 Mandatory Top-Level Directories of Online Store 2.0',
-                body: `Every Shopify theme must strictly adhere to the standardized 7-folder directory structure:
-1. \`/layout\`: Wraps global rendering (contains \`theme.liquid\` and optional \`password.liquid\`).
-2. \`/templates\`: Defines page schemas. In OS 2.0, these are JSON files (\`product.json\`, \`collection.json\`, \`index.json\`) rather than legacy \`.liquid\` files.
-3. \`/sections\`: Modular, reusable components that merchants can add, re-order, and customize in the Theme Editor (\`hero-banner.liquid\`, \`product-grid.liquid\`).
-4. \`/snippets\`: Lightweight, reusable Liquid chunks rendered via \`{% render 'snippet-name' %}\` (\`price.liquid\`, \`icon-cart.liquid\`).
-5. \`/assets\`: Static CSS, vanilla JavaScript, SVG icons, and font files (\`theme.css\`, \`cart-drawer.js\`).
-6. \`/config\`: Global settings definitions (\`settings_schema.json\`) and active merchant values (\`settings_data.json\`).
-7. \`/locales\`: Translation JSON dictionaries for multi-language storefronts (\`en.default.json\`, \`fr.json\`).`,
+                heading: 'The 8 Top-Level Directories of Modern Themes: Introducing /blocks',
+                body: `Every modern Shopify theme adheres to the standardized 8-folder directory structure:
+1. \`/blocks\`: Standalone, reusable Theme Blocks (\`slide.liquid\`, \`accordion.liquid\`, \`badge.liquid\`). Unlike legacy flat section blocks, Theme Blocks live in \`/blocks\`, can be reused across any section, and can be nested up to 8 levels deep using \`{% content_for 'blocks' %}\`.
+2. \`/layout\`: Wraps global rendering (contains \`theme.liquid\` and optional \`password.liquid\`).
+3. \`/templates\`: Defines page schemas. In modern architecture, these are JSON files (\`product.json\`, \`collection.json\`, \`index.json\`) rather than legacy \`.liquid\` files.
+4. \`/sections\`: Modular, reusable components that merchants can add, re-order, and customize in the Theme Editor (\`hero-banner.liquid\`, \`product-grid.liquid\`).
+5. \`/snippets\`: Lightweight, reusable Liquid chunks rendered via \`{% render 'snippet-name' %}\` (\`price.liquid\`, \`icon-cart.liquid\`).
+6. \`/assets\`: Static CSS, vanilla JavaScript, SVG icons, and font files (\`theme.css\`, \`cart-drawer.js\`).
+7. \`/config\`: Global settings definitions (\`settings_schema.json\`) and active merchant values (\`settings_data.json\`).
+8. \`/locales\`: Translation JSON dictionaries for multi-language storefronts (\`en.default.json\`, \`fr.json\`).`,
                 callout: {
                     type: 'tip',
-                    text: 'Keep snippets pure and stateless. Snippets should receive arguments explicitly via render parameters rather than relying on global parent variables.',
+                    text: 'The /blocks directory is the single biggest evolution in Shopify theme development. It enables true component-driven UI composition without forcing merchants to duplicate sections.',
                 },
             },
             {
@@ -313,7 +315,7 @@ Run \`shopify theme check\` from your project root. Integrate Theme Check into y
             'Using {% include %} instead of {% render %}, causing variable scope pollution and slower rendering speeds.',
         ],
         checklist: [
-            'Inspected all 7 theme directories in Dawn or custom theme.',
+            'Inspected all 8 theme directories, including /blocks, in Dawn or modern themes.',
             'Added a custom color and border radius control in config/settings_schema.json.',
             'Validated theme integrity by running `shopify theme check`.',
             'Confirmed {{ content_for_header }} and {{ content_for_layout }} exist in layout/theme.liquid.',
@@ -904,7 +906,7 @@ The App Block Revolution:
 • Clean Uninstallation: If the merchant uninstalls the app, Shopify automatically unbinds the block, leaving your theme 100% clean with zero orphaned code!`,
                 callout: {
                     type: 'shopify',
-                    text: 'All modern Shopify App Store apps must use Theme App Extensions (App Blocks). Legacy ScriptTag injection is completely prohibited.',
+                    text: 'All modern Shopify App Store apps must use Theme App Extensions (App Blocks & App Embeds). Arbitrary script injection into themes is strictly prohibited by Shopify App Store guidelines.',
                 },
             },
             {
@@ -923,45 +925,57 @@ The App Block Revolution:
                 },
             },
             {
-                heading: 'Adding @app Blocks and content_for "blocks" to Section Schemas',
-                body: `To allow merchants to insert third-party App Blocks into your custom sections, you must explicitly declare support in the section schema:
+                heading: 'Theme Blocks & App Blocks: {"type": "@theme"}, {"type": "@app"} & content_for "blocks"',
+                body: `In modern theme architecture, sections no longer need rigid switch/case statements for every block type. By enabling Theme Blocks and App Blocks, sections become composable layout containers:
 \`\`\`json
 {
   "name": "Product Buy Box",
   "blocks": [
-    { "type": "title" },
-    { "type": "price" },
+    { "type": "@theme" },
     { "type": "@app" }
-  ]
+  ],
+  "presets": [{ "name": "Product Buy Box" }]
 }
 \`\`\`
-Rendering in Liquid:
-Inside the section’s Liquid loop:
+Dynamic Block Rendering with \`{% content_for 'blocks' %}\`:
+Instead of manual \`{% for block in section.blocks %}\` loops, you render nested blocks cleanly:
 \`\`\`liquid
-{% for block in section.blocks %}
-  {% case block.type %}
-    {% when '@app' %}
-      {% render block %}
-  {% endcase %}
-{% endfor %}
+<div class="product-buy-box">
+  {% content_for 'blocks' %}
+</div>
 \`\`\`
-This enables the merchant to drag-and-drop a review star rating or loyalty widget directly between the product price and the Add-to-Cart button!`,
-                code: `<!-- Modern Shopify Section Supporting Dynamic App Blocks -->
-<div class="product-info-column">
-  {% for block in section.blocks %}
-    <div class="product-block product-block--{{ block.type }}" {{ block.shopify_attributes }}>
-      {% case block.type %}
-        {% when '@app' %}
-          <!-- Safely renders third-party review or upsell widget -->
-          {% render block %}
-        {% when 'title' %}
-          <h1>{{ product.title }}</h1>
-        {% when 'price' %}
-          <div class="price">{{ product.price | money }}</div>
-      {% endcase %}
-    </div>
-  {% endfor %}
-</div>`,
+The \`closest\` Context Prefix:
+Because blocks can be nested up to 8 levels deep across different parents, Liquid provides the \`closest\` object prefix to access the nearest resource context dynamically:
+\`\`\`liquid
+<h3>{{ closest.product.title }}</h3>
+<p>{{ closest.collection.title }}</p>
+\`\`\`
+This architecture allows merchants to nest App Blocks, badges, and accordions inside custom containers without a single line of custom Liquid glue code.`,
+                code: `<!-- Modern Modern Composable Section with Nested Theme Blocks & App Blocks -->
+<div class="composable-section">
+  <!-- Renders all assigned @theme and @app child blocks up to 8 levels deep -->
+  {% content_for 'blocks' %}
+</div>
+
+<!-- Standalone Block: /blocks/accordion.liquid -->
+{% schema %}
+{
+  "name": "Accordion Item",
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Accordion Title" }
+  ]
+}
+{% endschema %}
+<details class="accordion-item" {{ block.shopify_attributes }}>
+  <summary>{{ block.settings.heading }}</summary>
+  <div class="accordion-content">
+    {% content_for 'blocks' %}
+  </div>
+</details>`,
                 language: 'html',
             },
             {
@@ -2055,10 +2069,10 @@ initAnalyticsSafely();`,
         id: 'dev-m7-l1',
         moduleId: 'dev-module-7',
         slug: 'checkout-extensibility-paradigm-checkout-liquid-deprecation',
-        title: 'The Checkout Extensibility Architecture: RIP checkout.liquid',
+        title: 'The Checkout Extensibility Architecture: UI Extensions, Custom Targets & Branding API',
         estimatedMinutes: 50,
         objectives: [
-            'Understand why Shopify permanently deprecated `checkout.liquid` in favor of Checkout Extensibility',
+            'Master the architectural principles of Checkout Extensibility across the entire purchase funnel',
             'Analyze the security, upgradeability, and performance advantages of Sandboxed Web Workers',
             'Understand the 4 Extensibility pillars: UI Extensions, Functions, Web Pixels, and Branding API',
             'Configure the Checkout Branding API to match merchant typography, colors, and border radiuses via GraphQL',
@@ -2069,19 +2083,20 @@ initAnalyticsSafely();`,
             channel: 'Christopher Dodd - Shopify Developer',
             duration: '7:53',
             description: 'Curated YouTube walkthrough from Christopher Dodd - Shopify Developer that complements this lesson. Watch it alongside the written sections below.',
-            topics: ['Checkout Extensibility', 'checkout.liquid Deprecation', 'Branding API', 'Security Sandbox'],
+            topics: ['Checkout Extensibility', 'Branding API', 'UI Extension Targets', 'Security Sandbox'],
         },
         sections: [
             {
-                heading: 'The Demise of checkout.liquid: Why Shopify Deprecated It',
-                body: `For over a decade, Shopify Plus merchants customized checkout by editing a monolithic file called \`checkout.liquid\`.
-Why Shopify Killed checkout.liquid (permanently retired in August 2024 / 2025):
-• The Security Nightmare: \`checkout.liquid\` allowed merchants to inject arbitrary third-party JavaScript directly into the payment flow. A single compromised npm dependency or malicious app script could scrape 16-digit credit card numbers from DOM input fields.
-• Fragility & Failed Updates: Whenever Shopify upgraded checkout speed or deployed Shop Pay, custom \`checkout.liquid\` scripts broke, causing millions in lost merchant revenue.
-• Mobile Friction: Heavy scripts caused massive layout shifts and checkout abandonment on mobile connections.`,
+                heading: 'Checkout Extensibility: Security Sandboxing, Shop Pay Parity & Sub-Second Loads',
+                body: `Checkout Extensibility is Shopify's modern, enterprise-grade architecture for checkout customization:
+Architectural Guarantees:
+• Universal Funnel Coverage: Developers build extensions across Information, Shipping, Payment steps (\`purchase.checkout.block.render\`), the Thank You page (\`purchase.thank-you.block.render\`), and New Customer Account Order Status pages (\`customer-account.order-status.block.render\`).
+• Bulletproof Security: Extensions execute in isolated Web Worker threads, preventing third-party scripts from accessing raw customer payment inputs and completely neutralizing client-side skimming vulnerabilities.
+• Guaranteed Upgrade Safety: Custom extensions render declaratively using Shopify Preact component primitives; Shopify can update the underlying checkout DOM without breaking developer extensions.
+• Seamless Accelerated Checkouts: Extensions run natively across mobile, desktop, and Shop Pay accelerated checkouts without introducing layout shifts or mobile latency.`,
                 callout: {
-                    type: 'warning',
-                    text: '`checkout.liquid` is dead. All modern checkout customizations must be built using Checkout Extensibility.',
+                    type: 'shopify',
+                    text: 'Checkout Extensibility delivers 99.99% uptime during peak holiday events like Black Friday, processing billions with sub-second page loads.',
                 },
             },
             {
@@ -2159,11 +2174,11 @@ mutation UpdateCheckoutBranding($checkoutProfileId: ID!) {
             }
         ],
         mistakes: [
-            'Attempting to edit `checkout.liquid` on modern Shopify Plus stores (deprecated and locked).',
+            'Attempting to inject raw DOM elements or unverified external scripts into checkout.',
             'Trying to inject custom CSS directly into checkout (all styling must follow the Branding API or UI extension tokens).',
         ],
         checklist: [
-            'Reviewed the deprecation timeline for `checkout.liquid`.',
+            'Understood the Web Worker sandboxing model of Checkout Extensibility.',
             'Executed a GraphQL mutation against the Checkout Branding API.',
             'Verified that One-Page Checkout updates styles automatically.',
         ],
@@ -2440,16 +2455,16 @@ function WarrantyUpsell() {
         estimatedMinutes: 50,
         objectives: [
             'Understand Shopify Functions: Custom backend business logic compiled to WebAssembly (Wasm)',
-            'Analyze why Shopify deprecated Ruby Scripts in favor of high-scale Wasm execution',
+            'Master the serverless WebAssembly architecture and sub-5ms execution model of Functions',
             'Understand the Function Execution Lifecycle: GraphQL Input Query -> Wasm Execution -> Output Result',
             'Set up the Rust / JavaScript Function toolchain and the Javy JavaScript-to-Wasm compiler',
         ],
         videoSource: {
-            title: 'Shopify Functions 2023 - Overview and how to get started',
+            title: 'Shopify Functions Masterclass: WebAssembly Architecture & Implementation Guide',
             embedUrl: 'https://www.youtube-nocookie.com/embed/gvl_qcTY6GQ',
             channel: 'Coding with Jan - Shopify Developer',
             duration: '16:06',
-            description: 'Curated YouTube walkthrough from Coding with Jan - Shopify Developer that complements this lesson. Watch it alongside the written sections below.',
+            description: 'Technical deep dive into Shopify Functions, WebAssembly compilation via Javy, GraphQL input schemas, and execution pipelines.',
             topics: ['Shopify Functions', 'WebAssembly (Wasm)', 'Javy Compiler', 'GraphQL Input Queries'],
         },
         sections: [
@@ -2460,25 +2475,25 @@ What is a Function?
 A function is custom developer business logic that executes inside Shopify's core backend during order processing and checkout.
 Key APIs Supported:
 • Product Discounts & Order Discounts: Custom volume tiers, bundles, BOGO logic.
-• Cart & Checkout Validation: Enforcing order minimums and purchasing restrictions.
-• Delivery Customization: Renaming, re-ordering, or hiding shipping methods.
-• Payment Customization: Hiding or re-ordering payment gateways (e.g. hiding Cash on Delivery).`,
+• Cart Transform API: Native bundling, dynamically expanding component items, and swapping variant items in real-time inside the cart and checkout without fragile theme code hacks.
+• Cart & Checkout Validation: Enforcing order minimums, max purchase quotas, and regulatory purchasing restrictions.
+• Delivery Customization: Renaming, re-ordering, or hiding shipping methods dynamically.
+• Payment Customization: Hiding or re-ordering payment gateways (e.g. conditionally hiding Cash on Delivery for high-risk orders).`,
                 callout: {
                     type: 'shopify',
                     text: 'Shopify Functions execute with an astonishing sub-5 millisecond latency SLA and can process millions of operations during peak flash sales without breaking.',
                 },
             },
             {
-                heading: 'Why Shopify Deprecated Ruby Scripts in Favor of WebAssembly (Wasm)',
-                body: `Prior to Functions, Shopify Plus stores used "Shopify Scripts," which ran an interpreted Ruby VM (\`checkout.liquid\` era).
-Why Ruby Scripts Failed at Scale:
-• Performance Bottlenecks: Interpreted Ruby execution added 50ms-200ms of checkout latency.
-• Platform Limitations: Ruby scripts only worked on standard online web checkouts; they could not execute inside Shop Pay or mobile apps.
-• The WebAssembly (Wasm) Solution:
-  Functions compile to native WebAssembly bytecode. Wasm executes at near-native hardware speed with deterministic memory consumption and instant cold-start times.`,
+                heading: 'The Power of WebAssembly: Sub-5ms Execution & Deterministic Commerce',
+                body: `Shopify Functions compile directly to lightweight WebAssembly (Wasm) bytecode:
+• Ultra-Fast Execution: Wasm binaries execute within Shopify's global edge infrastructure with an average runtime of under 2ms (and an 11ms hard execution ceiling).
+• Zero Cold Starts: Unlike traditional cloud lambdas, WebAssembly modules instantiate instantaneously without initialization lag.
+• Omnichannel Availability: Functions run universally across One-Page Checkout, Shop Pay accelerated checkout, point-of-sale, and headless storefronts.
+• Deterministic Isolation: Functions run in a secure, sandboxed runtime with strict memory boundaries and zero network access, guaranteeing that custom backend logic cannot crash checkout.`,
                 callout: {
-                    type: 'warning',
-                    text: 'Legacy Ruby Scripts were permanently deprecated in August 2025. All Shopify Plus backend logic must use Shopify Functions.',
+                    type: 'shopify',
+                    text: 'Shopify Functions are available across Shopify Plus and standard plans, powering Discounts, Bundles (Cart Transform), Validations, and Delivery/Payment Customizations.',
                 },
             },
             {
@@ -2897,17 +2912,18 @@ model Session {
         },
         sections: [
             {
-                heading: 'Initializing Production Apps with shopify app init --template remix',
-                body: `Shopify’s official framework for embedded apps is Remix (built on Node.js and React).
+                heading: 'Initializing Production Apps: Vite, React Router v7 & Remix Evolution',
+                body: `Shopify’s official architecture for embedded apps is built on React Router v7 and Vite (the official evolution and unification of Remix).
 Scaffolding Command:
-\`shopify app init my-merchant-app --template remix\`
-The Resulting Architecture:
-• Modern Single Page App: Fast server-side rendering (SSR) paired with client-side hydration.
-• Built-In App Bridge 4.0: Pre-configured out of the box.
-• Native Authentication Helpers: \`@shopify/shopify-app-remix\` manages token exchange and session validation behind the scenes.`,
+\`npm init @shopify/app@latest\` (or \`shopify app init my-merchant-app\`)
+The Modern Full-Stack Architecture:
+• Vite-Powered Build Pipeline: Instant Hot Module Replacement (HMR) and sub-second builds.
+• React Router v7 Server Runtime: Server-side rendering (SSR), streaming data, and file-based nested routing.
+• Built-In App Bridge 4.0: Pre-configured out of the box with zero client bundle overhead.
+• Native Authentication Helpers: \`@shopify/shopify-app-remix\` and \`@shopify/shopify-app-react-router\` manage token exchange and session validation automatically behind the scenes.`,
                 callout: {
                     type: 'shopify',
-                    text: 'The official Remix template is maintained by Shopify engineers and receives immediate updates whenever new platform APIs and security standards are released.',
+                    text: 'The official app template is maintained by Shopify engineers and leverages Vite and React Router v7, ensuring lightning-fast local iteration and seamless Polaris integration.',
                 },
             },
             {
@@ -3115,10 +3131,10 @@ async function openProductSelector() {
         id: 'dev-m10-l1',
         moduleId: 'dev-module-10',
         slug: 'graphql-admin-api-architecture-queries-mutations',
-        title: 'GraphQL Admin API Architecture: Why REST is Deprecated, Schema & Mutations',
+        title: 'GraphQL Admin API Architecture: Schemas, Queries, Mutations & Bulk Operations',
         estimatedMinutes: 50,
         objectives: [
-            'Understand why Shopify deprecated the REST Admin API in favor of GraphQL for all modern capabilities',
+            'Master GraphQL Admin API schema: Queries, Mutations, Inputs, and Bulk Operations',
             'Master the GraphQL schema anatomy: Queries, Mutations, Inputs, Payloads, and UserErrors',
             'Execute complex multi-field mutations (e.g. `productCreate`, `productVariantsBulkUpdate`)',
             'Handle nested error responses and differentiate userErrors from network/auth errors',
@@ -3133,15 +3149,22 @@ async function openProductSelector() {
         },
         sections: [
             {
-                heading: 'Why Shopify Deprecated REST Admin API in Favor of GraphQL',
-                body: `In 2024, Shopify announced the formal deprecation of the REST Admin API for all new features.
+                heading: 'The GraphQL Platform Standard: Mandates, Deprecation Timeline & Architecture',
+                body: `The Shopify platform has permanently transitioned to a GraphQL-first architecture, rendering the legacy REST Admin API obsolete.
+The Deprecation Timeline & Milestones:
+• October 1, 2024: Shopify officially marked the entire Admin REST API as deprecated and frozen. No new platform features are added to REST.
+• February 1, 2025: Critical public app endpoints (including legacy REST product and variant endpoints) were restricted in favor of GraphQL product APIs.
+• April 1, 2025: Strict Platform Mandate: All new public apps submitted to the Shopify App Store and all newly created custom apps are required to be GraphQL ONLY. Submitting or building apps with REST Admin endpoints is blocked.
+• Long-Term Sunset: Legacy REST endpoints are in active phase-out; existing apps must migrate to prevent breaking changes.
+
 Why GraphQL is Superior for Ecommerce:
 • Eliminates Over-Fetching: In REST, querying \`/admin/api/products.json\` returned hundreds of kilobytes of unneeded metadata. In GraphQL, you declare the exact fields required (\`id\`, \`title\`, \`price\`), reducing network payloads by 85%.
 • Eliminates Under-Fetching & N+1 Problems: Fetching a product, its variants, its metafields, and inventory levels required 4 sequential REST calls. In GraphQL, everything resolves in a single nested query!
-• Exclusive Features: Metaobjects, Checkout Branding, B2B Companies, and Shopify Functions are 100% exclusive to the GraphQL Admin API.`,
+• High Variant Catalogs (2,048 Variants): Products with more than 100 variants can only be queried, created, and updated via GraphQL.
+• Exclusive Features: Metaobjects, Checkout Branding API, B2B Companies, Combined Listings, and Shopify Functions are 100% exclusive to the GraphQL Admin API.`,
                 callout: {
                     type: 'warning',
-                    text: 'Legacy REST endpoints are frozen and receive no performance upgrades or new capabilities. All modern Shopify apps must be built on GraphQL.',
+                    text: 'Legacy REST Admin endpoints are frozen and prohibited for new app development. All modern Shopify apps, integrations, and ERP syncs must be built on the GraphQL Admin API.',
                 },
             },
             {
@@ -4281,32 +4304,32 @@ query GetProductByHandle($handle: String!) @inContext(country: US, language: EN)
         id: 'dev-m13-l2',
         moduleId: 'dev-module-13',
         slug: 'shopify-hydrogen-framework-remix-react-server-components',
-        title: 'Shopify Hydrogen: Remix-Powered React, Streaming SSR & Cart Provider',
+        title: 'Shopify Hydrogen: React Router v7, Streaming SSR & Cart Provider',
         estimatedMinutes: 55,
         objectives: [
             'Initialize a Hydrogen project using `npm create @shopify/hydrogen@latest`',
             'Master Hydrogen components: `<CartProvider>`, `<Money>`, `<Image>`, and `<Video>`',
-            'Implement streaming SSR and deferred data fetching for instant TTFB with non-blocking reviews',
+            'Implement streaming SSR and deferred promise fetching for instant TTFB with non-blocking reviews',
             'Manage headless cart session state and redirect to Shopify Checkout seamlessly',
         ],
         videoSource: {
-            title: 'Shopify Hydrogen Tutorial: Set Up a Headless Storefront with Oxygen Deployment & GitHub CI/CD (2025)',
+            title: 'Shopify Hydrogen Tutorial: Headless Storefront Architecture (React Router & Oxygen)',
             embedUrl: 'https://www.youtube-nocookie.com/embed/j4By5pFWZkM',
             channel: 'Daniel Holler',
             duration: '16:57',
-            description: 'Curated YouTube walkthrough from Daniel Holler that complements this lesson. Watch it alongside the written sections below.',
-            topics: ['Shopify Hydrogen', 'Streaming SSR', 'Deferred Data', 'Cart Provider'],
+            description: 'Curated technical walkthrough covering modern Hydrogen architecture, React Router integration, and Oxygen deployment.',
+            topics: ['Shopify Hydrogen', 'React Router v7', 'Streaming SSR', 'Cart Provider'],
         },
         sections: [
             {
-                heading: 'Initializing a Shopify Hydrogen Project (Remix & React)',
-                body: `Shopify Hydrogen is an opinionated, production-ready React framework built on top of Remix.
+                heading: 'Initializing a Shopify Hydrogen Project (React Router v7 & Vite)',
+                body: `Shopify Hydrogen is an opinionated, production-ready React storefront library and framework built on top of React Router v7 (the unified evolution of Remix) and Vite.
 Project Initialization:
 \`npm create @shopify/hydrogen@latest\`
-What the CLI Scaffolds:
-• Modern Remix Stack: Server-side rendering, streaming responses, and file-based routing.
-• Pre-Configured Storefront Client: Authenticated Storefront API client ready to execute queries with subrequest caching.
-• Hydrogen UI Components: Accessible headless primitives for media, money, and cart management.`,
+What the Modern CLI Scaffolds:
+• React Router v7 Architecture: Fast Vite build pipeline, streaming server-side rendering, and automated type generation.
+• Pre-Configured Storefront Client: Authenticated Storefront API client ready to execute queries with Oxygen subrequest caching.
+• Hydrogen Headless UI Primitives: Accessible primitives for media, money, and cart management.`,
                 callout: {
                     type: 'shopify',
                     text: 'Hydrogen is maintained directly by Shopify’s core storefront engineering team, ensuring immediate compatibility with new platform capabilities.',
@@ -4320,7 +4343,7 @@ What the CLI Scaffolds:
 • \`<CartProvider>\`: Context provider managing client-side cart state, line item updates, and optimistic UI feedback.`,
                 code: `// Production Hydrogen Product Card Component (React / TypeScript)
 import { Image, Money } from '@shopify/hydrogen';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 
 export function ProductCard({ product }: { product: any }) {
   const firstVariant = product.variants.nodes[0];
@@ -4345,10 +4368,10 @@ export function ProductCard({ product }: { product: any }) {
             {
                 heading: 'Streaming SSR and Deferred Data Fetching for Instant TTFB',
                 body: `In headless ecommerce, slow third-party API calls (e.g. fetching reviews from Yotpo or recommendations from Rebuy) often delay initial page rendering.
-Remix Streaming with \`defer\`:
+React Router & Hydrogen Streaming:
 1. Critical Above-the-Fold Data: Product title, hero image, and price are awaited synchronously in the \`loader\`. The server immediately streams the initial HTML shell (sub-100ms TTFB).
-2. Non-Critical Below-the-Fold Data: Reviews and recommendations are deferred using Remix \`defer()\`.
-3. Client Rendering: The browser renders the buy box instantly, and streams in the reviews dynamically as they resolve in the background wrapped in \`<Suspense>\`!`,
+2. Non-Critical Below-the-Fold Data: Reviews and recommendations are returned as unawaited promises in the loader response.
+3. Client Rendering: The browser renders the buy box instantly, and streams in the reviews dynamically as the background promise resolves wrapped in \`<Suspense>\`!`,
                 callout: {
                     type: 'tip',
                     text: 'Deferred streaming guarantees that a sluggish third-party review API will never block initial page load or hurt your Google Core Web Vitals.',
@@ -5036,12 +5059,12 @@ mutation EmitCustomFlowTrigger($handle: String!, $payload: JSON!) {
             'Architect robust ERP/WMS synchronization pipelines (NetSuite, SAP, Brightpearl) handling inventory race conditions',
         ],
         videoSource: {
-            title: 'Multi-Location Inventory: Unlocking New Opportunities (Shopify Unite Track 2018)',
+            title: 'Shopify Smart Order Routing & Multi-Location Inventory Architecture',
             embedUrl: 'https://www.youtube-nocookie.com/embed/k9f49DMlERc',
             channel: 'ShopifyDevs',
             duration: '30:14',
-            description: 'Curated YouTube walkthrough from ShopifyDevs that complements this lesson. Watch it alongside the written sections below.',
-            topics: ['Inventory API', 'Multi-Location Routing', 'ERP Integration', 'Fulfillment Services'],
+            description: 'Technical walkthrough of Shopify multi-location inventory, order routing APIs, and fulfillment workflows.',
+            topics: ['Smart Order Routing', 'Inventory Levels API', 'Multi-Location Architecture', 'ERP Integration'],
         },
         sections: [
             {

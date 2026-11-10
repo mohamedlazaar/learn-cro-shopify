@@ -83,7 +83,7 @@ const CRO_QUIZZES: Quiz[] = [
           'Non-Plus stores cannot accept credit card payments.',
         ],
         correctIndex: 0,
-        explanation: 'Shopify retired checkout.liquid and restricts non-Plus stores to the Checkout Branding API; arbitrary DOM scripts are blocked for PCI compliance and security.',
+        explanation: 'Arbitrary DOM scripts are blocked across checkout for PCI compliance and security. Checkout customizations are restricted to Checkout Extensibility (UI Extensions on Plus, Branding API on all plans).',
       },
       {
         question: 'How can a Shopify developer update cart drawer contents dynamically without breaking CDN full-page caching?',
@@ -119,15 +119,15 @@ const CRO_QUIZZES: Quiz[] = [
         explanation: 'Over 70% of paid ad traffic lands directly on the PDP or dedicated product landing pages, bypassing the homepage entirely.',
       },
       {
-        question: 'What is the native Shopify limit for variants per product without custom apps or sibling product workarounds?',
+        question: 'Under modern Shopify platform architecture (GraphQL Admin API), what is the maximum number of variants supported per product?',
         options: [
-          '50 variants',
           '100 variants',
           '250 variants',
-          'Unlimited variants',
+          '2,048 variants (with up to 3 option dimensions)',
+          'Unlimited variants with unlimited options',
         ],
-        correctIndex: 1,
-        explanation: 'Shopify natively limits products to 100 variants (and 3 option dimensions). Sibling product metafield linking is the standard developer workaround.',
+        correctIndex: 2,
+        explanation: 'Shopify expanded the legacy 100-variant limit up to 2,048 variants per product via GraphQL Admin API (resourceLimits.maxProductVariants), while maintaining a 3-option dimension cap. Unpaginated storefront Liquid loops render up to 250 variants before requiring Storefront API queries, and Combined Listings links multi-product catalogs natively.',
       },
     ],
   },
@@ -630,7 +630,7 @@ const CRO_QUIZZES: Quiz[] = [
       {
         question: 'What technology powers modern Shopify Plus checkout customization without breaking PCI compliance?',
         options: [
-          'Editing checkout.liquid files directly',
+          'Direct DOM script injection in iframe containers',
           'Checkout UI Extensions and Shopify Functions',
           'Injecting jQuery scripts via Google Tag Manager',
           'Using unverified third-party Chrome extensions',

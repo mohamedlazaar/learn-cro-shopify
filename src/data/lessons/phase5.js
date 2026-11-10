@@ -1188,8 +1188,8 @@ Result: The customer refuses the package, requests a full chargeback, leaves a 1
 Delivered Duty Unpaid (DDU) is the single fastest way to destroy international repeat purchase rates.`,
             },
             {
-                heading: 'Delivered Duty Paid (DDP) with Shopify Markets Pro / Global-e',
-                body: `DDP calculates and collects exact customs duties, import tariffs, and local VAT directly in the online checkout. The parcel is marked pre-cleared, flying through international customs without carrier delays or customer collection fees.`,
+                heading: 'Delivered Duty Paid (DDP) with Shopify Managed Markets (powered by Global-e)',
+                body: `DDP calculates and collects exact customs duties, import tariffs, and local VAT directly in the online checkout. Powered by Global-e as merchant of record, Shopify Managed Markets guarantees that parcels fly through customs pre-cleared without unexpected doorstep fees, cutting international checkout abandonment by up to 35%.`,
             },
             {
                 heading: 'VAT Inclusivity Messaging',

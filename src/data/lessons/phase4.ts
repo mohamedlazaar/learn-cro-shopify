@@ -500,9 +500,9 @@ entire feature instantaneously without touching Git.
     title: 'Shopify Functions for CRO: Discounts, Shipping, Payment',
     estimatedMinutes: 30,
     objectives: [
-      'Understand Shopify Functions architecture compiled to WebAssembly (Wasm).',
-      'Build dynamic volume and tiered discount logic (e.g. Buy 2 save 10%, Buy 3 save 20%).',
-      'Optimize delivery and payment options dynamically at checkout.',
+      'Understand Shopify Functions architecture compiled to WebAssembly (Wasm) via Rust or JavaScript (Javy).',
+      'Build dynamic volume and tiered discount logic (e.g. Buy 2 save 10%, Buy 3 save 20%) without coupon codes.',
+      'Leverage Cart Transform, Delivery Customization, and Payment Customization APIs at checkout.',
     ],
     videoSource: {
       title: 'Build Advanced Shopify Discounts with Shopify Functions',
@@ -515,46 +515,81 @@ entire feature instantaneously without touching Git.
     sections: [
       {
         heading: 'Understanding Shopify Functions Compiled to WebAssembly (Wasm)',
-        body: `Shopify Functions represent the modern backend compute layer of the Shopify platform.
+        body: `Shopify Functions represent the modern backend compute layer of the Shopify platform, executing compiled WebAssembly (Wasm) with sub-5ms latency SLAs.
 How They Work:
-• Written in Rust or TypeScript and compiled down into lightweight WebAssembly (Wasm) binaries.
-• Executed directly on Shopify’s global server infrastructure within the checkout pipeline.
-• Ultra-Fast Execution: Runs in under 5 milliseconds with a hard execution limit of 11ms, ensuring checkout velocity is never compromised.
-• Replaces Legacy Ruby Scripts: Unlike Shopify Scripts (which only worked on \`checkout.liquid\`), Functions work across all modern checkout interfaces and Shop Pay.`,
+• Written in Rust or TypeScript/JavaScript and compiled into lightweight WebAssembly (Wasm) binaries using tools like Javy.
+• Executed directly on Shopify’s global server infrastructure within the core checkout pipeline.
+• Ultra-Fast Execution: Runs in under 5 milliseconds with a hard execution limit of 11ms, ensuring checkout velocity is never compromised even during BFCM flash traffic.
+• GraphQL Input Queries: Each Function defines a \`run.graphql\` file requesting only the precise cart and customer fields needed, minimizing payload overhead.
+• Universal Compatibility: Works across modern One-Page Checkout, Shop Pay accelerated checkout, and headless storefronts.`,
         callout: {
           type: 'shopify',
-          text: 'Shopify Functions are available to all Shopify Plus stores and support Discount, Delivery, and Payment Customization APIs.',
+          text: 'Shopify Functions are available across Shopify Plus and standard plans for custom apps, powering Discounts, Cart Transform (Bundles), Cart Validation, Delivery, and Payment Customization APIs.',
         },
       },
       {
         heading: 'Building Dynamic Volume and Tiered Discount Logic',
         body: `Volume discounting (e.g., Buy 2 get 10% off, Buy 3 get 20% off) is the most reliable mechanism for lifting Average Order Value.
-Building via Shopify Functions:
-• The Function queries the incoming cart lines.
-• Evaluates quantity thresholds across eligible product collections.
+Building via Shopify Functions (Discount API):
+• The Function queries incoming cart line items and their quantities via GraphQL.
+• Evaluates quantity thresholds across eligible product collections or variant IDs.
 • Returns an automated discount instruction applied directly to the line items.
-• Zero Coupon Codes Required: The discount applies automatically, eliminating checkout friction and preventing coupon leakages.`,
+• Zero Coupon Codes Required: The discount applies automatically, eliminating coupon hunting drop-offs and preventing promo code leaks to coupon scraper browser extensions.`,
         callout: {
           type: 'tip',
           text: 'Pairing a volume discount Function with a visual tier selector pill on the PDP lifts multi-item basket additions by up to 24%.',
         },
       },
       {
-        heading: 'Optimizing Delivery and Payment Options Dynamically at Checkout',
-        body: `Customize the checkout experience based on customer and cart characteristics:
-1. Delivery Customization API:
-   - Re-order shipping methods so the most popular option (e.g. "Free 2-Day Shipping") is selected by default.
-   - Rename shipping methods dynamically based on destination (e.g., "Chicago Local Courier").
-2. Payment Customization API:
-   - Hide Cash on Delivery (COD) for orders over $200 or addresses with high fraud risk scores.
-   - Hide Buy Now Pay Later (Klarna/Afterpay) for gift card purchases.`,
-        code: `// Production Shopify Function for Automated Tiered Volume Discounts (TypeScript/Wasm target)
+        heading: 'Cart Transform, Delivery & Payment Customization APIs',
+        body: `Beyond discounts, Shopify Functions provide high-leverage CRO levers across the checkout funnel:
+1. Cart Transform API (Native Bundling):
+   - Merges complementary items into bundles or expands bundle components dynamically without requiring hacky draft orders or inventory syncing apps.
+2. Cart & Checkout Validation API:
+   - Validates cart contents before payment begins (e.g. enforcing order minimums or checking postal code compatibility), displaying inline errors rather than failing at gateway payment.
+3. Delivery Customization API:
+   - Re-orders shipping methods so the highest-converting option (e.g. "Free 2-Day Shipping") is pre-selected by default.
+   - Renames shipping methods dynamically based on destination (e.g., "Same-Day Manhattan Courier").
+4. Payment Customization API:
+   - Hides high-friction or high-fraud payment methods (like COD) for high-value orders or high-risk fraud scores.`,
+        code: `// Production Shopify Function: Tiered Volume Discount (TypeScript compiled to Wasm via Javy)
+// run.graphql:
+// query RunInput {
+//   cart {
+//     lines {
+//       id
+//       quantity
+//       merchandise {
+//         ... on ProductVariant {
+//           id
+//           product { inAnyCollection(ids: ["gid://shopify/Collection/123456789"]) }
+//         }
+//       }
+//     }
+//   }
+// }
+
 interface CartLine {
   id: string;
   quantity: number;
 }
 
-export function run(input: { cart: { lines: CartLine[] } }) {
+interface RunInput {
+  cart: {
+    lines: CartLine[];
+  };
+}
+
+interface FunctionResult {
+  discountApplicationStrategy: 'FIRST' | 'MAXIMUM';
+  discounts: Array<{
+    targets: Array<{ cartLine: { id: string } }>;
+    value: { percentage: { value: number } };
+    message: string;
+  }>;
+}
+
+export function run(input: RunInput): FunctionResult {
   const totalEligibleQuantity = input.cart.lines.reduce((sum, line) => sum + line.quantity, 0);
 
   let discountPercentage = 0;
@@ -572,23 +607,23 @@ export function run(input: { cart: { lines: CartLine[] } }) {
     discountApplicationStrategy: 'FIRST',
     discounts: [
       {
-        targets: input.cart.lines.map(line => ({ cartLine: { id: line.id } })),
+        targets: input.cart.lines.map((line) => ({ cartLine: { id: line.id } })),
         value: { percentage: { value: discountPercentage } },
-        message: \`Volume Savings: \${discountPercentage}% Off (\${totalEligibleQuantity} Items)\`
-      }
-    ]
+        message: \`Volume Savings: \${discountPercentage}% Off (\${totalEligibleQuantity} Items)\`,
+      },
+    ],
   };
 }`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
-      'Relying on deprecated checkout.liquid scripts for new store builds.',
+      'Failing to optimize GraphQL input queries, leading to unnecessary data fetching overhead.',
       'Exceeding the 5ms Shopify Function execution budget by performing complex recursive calculations.',
     ],
     checklist: [
-      'I can compile and deploy a basic Shopify Function using Shopify CLI.',
-      'I know how to target Cart Line Discounts and Delivery Customization APIs.',
+      'I can compile and deploy a Shopify Function using the Shopify CLI (shopify app generate extension).',
+      'I know how to target Product Discount, Cart Transform, and Delivery Customization APIs.',
     ],
     furtherReading: [
       { title: 'Shopify Functions Developer Reference', url: 'https://shopify.dev/docs/api/functions' },
@@ -601,9 +636,9 @@ export function run(input: { cart: { lines: CartLine[] } }) {
     title: 'Checkout UI Extensions: Trust, Delivery, and Upsell',
     estimatedMinutes: 30,
     objectives: [
-      'Build interactive Checkout UI Extensions using React-like primitives.',
+      'Build interactive Checkout UI Extensions using Preact/React primitives.',
+      'Deploy extensions across checkout steps, Thank You, and Order Status pages.',
       'Inject high-converting order summary upsells into the checkout sidebar.',
-      'Add delivery instructions and custom gift messaging.',
     ],
     videoSource: {
       title: 'Shopify Development Deep Dive, Part 12: Checkout UI Extensions Explained',
@@ -615,15 +650,16 @@ export function run(input: { cart: { lines: CartLine[] } }) {
     },
     sections: [
       {
-        heading: 'Building Checkout UI Extensions with Preact-Like Primitives',
-        body: `Checkout UI Extensions allow Shopify Plus developers to build native, secure interface components directly within the checkout flow.
+        heading: 'The Checkout Extensibility Architecture: Full-Funnel Customization',
+        body: `Checkout Extensibility is Shopify's modern, secure framework for customizing the entire checkout and post-purchase experience with sandboxed UI Extensions and Branding APIs.
 Architectural Principles:
-• Preact Sandbox: Extensions run in an isolated Web Worker; they cannot access the global \`window\` or \`document\` objects directly.
-• Native Shopify UI Components: You compose your interface using Shopify’s accessible UI components: \`Banner\`, \`BlockStack\`, \`InlineLayout\`, \`Checkbox\`, \`Button\`.
-• Seamless Styling: Components automatically inherit the merchant’s typography and color settings defined in the Checkout Branding API.`,
+• Universal Funnel Coverage: Extensions can be rendered across Information, Shipping, Payment steps (\`purchase.checkout.block.render\`), the Thank You page (\`purchase.thank-you.block.render\`), and New Customer Account Order Status pages (\`customer-account.order-status.block.render\`).
+• Preact Sandbox: Extensions run in an isolated Web Worker thread, preventing rogue scripts from accessing credit card inputs or window objects.
+• Native Shopify UI Components: Interfaces are composed using Shopify’s accessible primitives: \`Banner\`, \`BlockStack\`, \`InlineLayout\`, \`Checkbox\`, \`Button\`, \`TextField\`.
+• Seamless Styling: Components automatically inherit typography, colors, and border radii defined in the Checkout Branding API.`,
         callout: {
           type: 'shopify',
-          text: 'Checkout UI Extensions are 100% compliant with Apple Pay and Shop Pay accelerated checkouts.',
+          text: 'Checkout UI Extensions are 100% compliant with Apple Pay, Google Pay, and Shop Pay accelerated checkouts, rendering natively without breaking checkout speed.',
         },
       },
       {
@@ -632,7 +668,7 @@ Architectural Principles:
 Winning Checkout Upsells:
 • Shipping Protection / Package Insurance ($2.95): Protects against transit theft or damage; 22% average attachment rate.
 • Priority Fulfillment / Rush Processing ($4.99): Puts the order at the front of the fulfillment queue.
-• Mystery Accessory Sample ($5.00): High curiosity item that adds incremental gross profit.`,
+• Mystery Accessory Sample ($5.00): High curiosity item that adds incremental gross profit without inventory risk.`,
         callout: {
           type: 'tip',
           text: 'A $2.95 package protection extension converts at 20%+ attachment, contributing pure high-margin profit to every transaction.',
@@ -641,8 +677,8 @@ Winning Checkout Upsells:
       {
         heading: 'Adding Delivery Instructions and Custom Gift Messaging',
         body: `Allowing customers to specify apartment gate codes, delivery notes, or gift card greetings directly inside checkout removes last-mile delivery anxiety:
-• The extension provides a clean text field.
-• Writes the input into the checkout's \`customAttributes\`.
+• The extension renders a clean \`TextField\` using the Checkout UI extension hooks.
+• Writes the input into the checkout's \`customAttributes\` via \`useApplyAttributeChange\`.
 • The delivery note is stored directly on the Shopify Order object in the Admin, streaming seamlessly into shipping labels (ShipStation/Shippo).`,
         code: `// Production Checkout UI Extension: 1-Click Shipping Protection Upsell
 import {
@@ -661,17 +697,17 @@ function ShippingProtectionApp() {
   const cartLines = useCartLines();
   const PROTECTION_VARIANT_ID = 'gid://shopify/ProductVariant/4491029182910';
 
-  const isProtected = cartLines.some(line => line.merchandise.id === PROTECTION_VARIANT_ID);
+  const isProtected = cartLines.some((line) => line.merchandise.id === PROTECTION_VARIANT_ID);
 
   async function handleToggle(checked: boolean) {
     if (checked) {
       await applyCartLinesChange({
         type: 'addCartLine',
         merchandiseId: PROTECTION_VARIANT_ID,
-        quantity: 1
+        quantity: 1,
       });
     } else {
-      const line = cartLines.find(l => l.merchandise.id === PROTECTION_VARIANT_ID);
+      const line = cartLines.find((l) => l.merchandise.id === PROTECTION_VARIANT_ID);
       if (line) {
         await applyCartLinesChange({ type: 'removeCartLine', id: line.id, quantity: 1 });
       }
@@ -687,15 +723,17 @@ function ShippingProtectionApp() {
   );
 }`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
-      'Attempting to use raw HTML elements like \`<div>\` or \`<span>\` (Extensions only accept Shopify UI components).',
-      'Creating heavy network calls inside checkout extensions that slow down payment completion.',
+      'Attempting to use raw HTML elements like <div> or <span> (Extensions only accept Shopify UI components).',
+      'Creating heavy external network calls inside checkout extensions that slow down payment completion.',
+      'Attempting direct DOM manipulation instead of using declarative Checkout UI Extension hooks.',
     ],
     checklist: [
       'I can build a 1-click product add extension inside Shopify Checkout.',
-      'I know how to use standard extension hooks (useCartLines, useApplyCartLinesChange).',
+      'I know how to target Thank You and Order Status extension points.',
+      'I know how to use standard extension hooks (useCartLines, useApplyCartLinesChange, useApplyAttributeChange).',
     ],
     furtherReading: [
       { title: 'Shopify Checkout UI Components Directory', url: 'https://shopify.dev/docs/api/checkout-ui-extensions/components' },
@@ -814,8 +852,8 @@ export default {
     title: 'Server-Side Event Tracking (Meta CAPI & GA4 Measurement Protocol)',
     estimatedMinutes: 25,
     objectives: [
-      'Bypass browser ad blockers and iOS Safari ITP cookie death.',
-      'Implement Meta Conversions API (CAPI) and GA4 Measurement Protocol.',
+      'Bypass browser ad blockers and iOS Safari ITP cookie death using server-side pipelines.',
+      'Implement Meta Conversions API (CAPI) and GA4 Measurement Protocol with Google Consent Mode v2.',
       'Deduplicate client and server events using unique event_id tokens.',
     ],
     videoSource: {
@@ -828,48 +866,51 @@ export default {
     },
     sections: [
       {
-        heading: 'Bypassing Ad Blockers and Safari ITP Cookie Restrictions',
-        body: `Browser privacy defenses (Safari Intelligent Tracking Prevention, Firefox Enhanced Tracking, Brave, and uBlock Origin ad blockers) block up to 30% of client-side analytics pixels.
+        heading: 'Bypassing Ad Blockers, Safari ITP, and Third-Party Cookie Deprecation',
+        body: `Browser privacy defenses (Safari Intelligent Tracking Prevention, Firefox Enhanced Tracking Protection, Brave, and uBlock Origin ad blockers) block up to 30% of client-side analytics pixels.
 The Consequences for CRO:
-• Under-Reported Conversions: Ad platforms (Meta, Google) fail to attribute sales, making ad spend appear inefficient.
-• Truncated Cookies: Safari truncates client-side JavaScript cookies to 7 days (or 24 hours if arriving via a tracking click-ID), breaking attribution for shoppers who take 8 days to buy.
-• The Solution: Server-side event tracking, where events stream directly from Shopify's backend servers to ad APIs.`,
+• Under-Reported Conversions: Ad platforms (Meta, Google) fail to attribute sales, making ad spend appear inefficient and starving automated bidding algorithms of signal.
+• Truncated Cookies: Safari truncates client-side JavaScript cookies to 7 days (or 24 hours if arriving via a tracking click-ID parameter like \`fbclid\` or \`gclid\`), breaking attribution for shoppers who convert a week later.
+• The Solution: Server-side event tracking, where events stream directly from Shopify webhooks or Cloudflare/GTM server-side containers directly to ad APIs.`,
         callout: {
           type: 'tip',
-          text: 'Server-to-server tracking operates behind the scenes, completely immune to browser-level ad blockers and browser cookie truncation.',
+          text: 'Server-to-server tracking operates behind the scenes, completely immune to browser-level ad blockers and client-side cookie truncation.',
         },
       },
       {
-        heading: 'Implementing Meta Conversions API (CAPI) & GA4 Measurement Protocol',
-        body: `Dual-Tracking Architecture:
-• Client-Side: Dispatches browser events for immediate user experience telemetry.
-• Server-Side: When a webhook fires (e.g. \`orders/create\`), Shopify's backend server sends an authenticated HTTP POST payload directly to Meta Graph API (CAPI) and Google Analytics Measurement Protocol.
-• Event Payload: Contains hashed customer email (SHA-256), phone, order total, currency, and exact line-item SKUs.`,
+        heading: 'Google Consent Mode v2 & Meta CAPI Compliance',
+        body: `Modern tracking must respect global privacy frameworks (GDPR, DMA, CCPA) using Google Consent Mode v2:
+• Mandatory 4 Signals: \`analytics_storage\`, \`ad_storage\`, \`ad_user_data\`, and \`ad_personalization\`.
+• Unconsented State: When a user denies tracking cookies, pings are sent in a cookie-less state so Google can model conversions algorithmically without violating privacy.
+• Dual-Tracking Architecture:
+  - Client-Side: Dispatches browser events for immediate user experience telemetry.
+  - Server-Side: When a webhook fires (e.g. \`orders/create\`), Shopify's backend server sends an authenticated HTTP POST payload directly to Meta Graph API (CAPI) and Google Analytics Measurement Protocol with hashed customer data (SHA-256 for email and phone).`,
         callout: {
           type: 'shopify',
-          text: 'Shopify’s native Facebook & Instagram sales channel includes built-in Meta CAPI integration with server-side deduplication.',
+          text: 'Shopify’s native Customer Events Web Pixels integrate with Shopify Privacy API and Consent Mode v2 out-of-the-box.',
         },
       },
       {
         heading: 'Deduplicating Client and Server Events via Unique event_id Tokens',
         body: `If both the browser pixel and the server-side API report the same purchase, ad platforms will double-count the revenue, inflating conversion numbers by 100%!
 The Deduplication Protocol:
-1. Generate a unique \`event_id\` token on the client (e.g., \`ORD_98214_TIMESTAMP\`).
+1. Generate a unique \`event_id\` token on the client or checkout (e.g., \`ORD_98214_TIMESTAMP\`).
 2. Pass this exact token in the browser pixel event payload.
 3. Pass the identical \`event_id\` in the server-side CAPI payload.
 4. When Meta receives both events, its deduplication algorithm matches the tokens, merges the data, and records exactly ONE conversion with 100% data fidelity.`,
-        code: `// Server-Side Event Deduplication Payload Dispatcher (GA4 & Meta CAPI)
+        code: `// Server-Side Event Deduplication Payload Dispatcher (GA4 & Meta CAPI with Consent Mode v2)
 interface ConversionEventPayload {
   eventId: string;
   orderNumber: string;
   totalRevenue: number;
   currency: string;
   customerEmailHash: string; // SHA-256
+  consentGranted: boolean;
 }
 
 async function dispatchServerSideConversion(payload: ConversionEventPayload) {
   // 1. Dispatch to Meta Conversions API (CAPI)
-  const metaResponse = await fetch('https://graph.facebook.com/v19.0/YOUR_PIXEL_ID/events', {
+  const metaResponse = await fetch('https://graph.facebook.com/v21.0/YOUR_PIXEL_ID/events', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -877,24 +918,33 @@ async function dispatchServerSideConversion(payload: ConversionEventPayload) {
         event_name: 'Purchase',
         event_time: Math.floor(Date.now() / 1000),
         event_id: payload.eventId, // Critical: Deduplication key
-        user_data: { em: [payload.customerEmailHash] },
-        custom_data: { currency: payload.currency, value: payload.totalRevenue }
-      }]
-    })
+        action_source: 'website',
+        user_data: {
+          em: [payload.customerEmailHash],
+        },
+        custom_data: {
+          currency: payload.currency,
+          value: payload.totalRevenue,
+          order_id: payload.orderNumber,
+        },
+        data_processing_options: payload.consentGranted ? [] : ['LDU'],
+      }],
+    }),
   });
 
   console.log(\`[CAPI Server Sync] Event ID: \${payload.eventId} successfully transmitted.\`);
 }`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
-      'Failing to pass matching \`event_id\` strings between browser and server, causing all orders to be counted twice in Meta Ads Manager.',
+      'Failing to pass matching event_id strings between browser and server, causing all orders to be counted twice in Meta Ads Manager.',
       'Sending unhashed customer email or phone numbers to Meta (must use SHA-256 hashing).',
+      'Ignoring Google Consent Mode v2 signals, resulting in ad campaign conversion reporting lockouts in the EEA.',
     ],
     checklist: [
       'I understand event deduplication using event_id.',
-      'I know how to configure Meta Conversions API in Shopify.',
+      'I know how to configure Meta Conversions API and Google Consent Mode v2 in Shopify.',
     ],
     furtherReading: [
       { title: 'Meta Conversions API Developer Guide', url: 'https://developers.facebook.com/docs/marketing-api/conversions-api/' },
@@ -907,8 +957,8 @@ async function dispatchServerSideConversion(payload: ConversionEventPayload) {
     title: 'Hydrogen and Oxygen for CRO: Headless Optimization',
     estimatedMinutes: 25,
     objectives: [
-      'Understand how Shopify Hydrogen (Remix) enables sub-100ms page transitions.',
-      'Implement optimistic cart updates in React.',
+      'Understand how Shopify Hydrogen (powered by React Router v7 & Vite) enables sub-100ms page transitions.',
+      'Implement optimistic cart updates using React and Storefront API.',
       'Avoid common headless CRO traps (broken tracking, missing native apps).',
     ],
     videoSource: {
@@ -921,11 +971,12 @@ async function dispatchServerSideConversion(payload: ConversionEventPayload) {
     },
     sections: [
       {
-        heading: 'Sub-100ms Transitions with Shopify Hydrogen (Remix) & Oxygen',
-        body: `Shopify Hydrogen is an opinionated headless React framework built on Remix, deployed to Shopify's global Oxygen edge hosting platform.
+        heading: 'Sub-100ms Transitions with Shopify Hydrogen (React Router v7 / Vite) & Oxygen',
+        body: `Shopify Hydrogen is an opinionated headless React framework built on React Router v7 and Vite, deployed globally to Shopify's Oxygen edge hosting platform.
 Why Headless Unlocks Extreme CRO Velocity:
-• Instant Page Navigation: Remix pre-fetches next-page data as soon as the user hovers over a link. Clicking a collection item renders the PDP in under 80 milliseconds!
-• Zero Full-Page Renders: Browsing feels like a high-performance native iOS mobile application.
+• Instant Page Navigation: React Router pre-fetches next-page data as soon as the user hovers over a link. Clicking a collection item renders the PDP in under 80 milliseconds!
+• Subrequest Profiling: Built-in Subrequests tooling tracks every GraphQL Storefront API call, caching cacheable queries at the edge (\`Cache-Control: public, max-age=1, stale-while-revalidate=9\`).
+• Zero Full-Page Renders: Browsing feels like a high-performance native mobile application.
 • Complete Architectural Freedom: Full control over DOM structure, edge caching headers, and custom micro-interactions.`,
         callout: {
           type: 'shopify',
@@ -950,10 +1001,10 @@ Optimistic UI Architecture:
         body: `Going headless without careful planning can completely destroy store conversion:
 Common Headless Disasters:
 • Missing Shopify Apps: 90% of Shopify apps depend on Liquid theme injection. When you go headless, your review apps, subscription widgets, and wishlist tools cease to function unless rewritten via Storefront APIs.
-• Broken Tracking: Third-party analytics pixels that rely on standard \`theme.liquid\` will not capture headless Single Page Application (SPA) route changes unless instrumented manually.
+• Broken Tracking: Third-party analytics pixels that rely on standard \`theme.liquid\` will not capture headless Single Page Application (SPA) route changes unless instrumented manually via Storefront Customer Events.
 • Cost Overruns: Maintaining a headless codebase requires dedicated React engineering teams.`,
-        code: `// Optimistic Cart Addition Pattern in Shopify Hydrogen (Remix)
-import { useFetcher } from '@remix-run/react';
+        code: `// Optimistic Cart Addition Pattern in Shopify Hydrogen (React Router v7 / Vite)
+import { useFetcher } from 'react-router';
 
 export function AddToCartButton({ variantId, children }: { variantId: string; children: React.ReactNode }) {
   const fetcher = useFetcher();
@@ -976,7 +1027,7 @@ export function AddToCartButton({ variantId, children }: { variantId: string; ch
   );
 }`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
       'Migrating to Hydrogen to fix poor conversion when the root cause was bad pricing and unclear value propositions.',
@@ -1082,12 +1133,12 @@ shopify theme dev --store your-cro-capstone-store.myshopify.com
     id: 'm15-l2',
     moduleId: 'module-15',
     slug: 'instrumenting-the-theme-web-pixels-ga4',
-    title: 'Instrumenting the Theme (Web Pixels + GA4)',
+    title: 'Instrumenting the Theme (Web Pixels + GA4 + Consent Mode v2)',
     estimatedMinutes: 30,
     objectives: [
-      'Deploy a unified tracking pixel extension subscribing to all 8 ecommerce events.',
-      'Verify clean dataLayer payloads in Google Tag Manager / GA4 DebugView.',
-      'Document the tracking architecture as Deliverables 1 & 2.',
+      'Deploy a sandboxed Web Pixel extension subscribing to all 8 standard ecommerce events.',
+      'Understand the Web Worker execution environment (no window or DOM access) and how to dispatch telemetry.',
+      'Verify clean GA4 Measurement Protocol / GTM server-side payloads and document as Deliverables 1 & 2.',
     ],
     videoSource: {
       title: 'Shopify Ecommerce Conversion Tracking Setup: GA4, Google Ads, Pixel & CAPI',
@@ -1102,85 +1153,120 @@ shopify theme dev --store your-cro-capstone-store.myshopify.com
         heading: 'Deploying a Unified Web Pixel Extension Subscribing to 8 Events',
         body: `Deliverables 1 & 2 require a robust, standardized telemetry infrastructure using Shopify's modern Web Pixels API.
 Why Web Pixels Beat Legacy Scripts:
-• Sandboxed Execution: Pixels run in an isolated worker thread; a crash in an analytics script CANNOT crash the customer's checkout!
-• 100% Funnel Coverage: Subscribes natively to all standard events across the entire storefront AND the locked checkout steps without requiring \`checkout.liquid\`.
+• Sandboxed Execution: Pixels run in an isolated Web Worker; a crash in an analytics script CANNOT crash the customer's checkout!
+• 100% Funnel Coverage: Subscribes natively to all standard events across the entire storefront AND the locked checkout steps, providing 100% reliable telemetry across the entire customer funnel.
 • Standard 8 Events: \`page_viewed\`, \`product_viewed\`, \`collection_viewed\`, \`search_submitted\`, \`product_added_to_cart\`, \`cart_viewed\`, \`checkout_started\`, \`checkout_completed\`.`,
         callout: {
           type: 'shopify',
-          text: 'Web Pixels are managed natively in Shopify Admin under Settings -> Customer Events and work across all Shopify subscription plans.',
+          text: 'Web Pixels are managed natively in Shopify Admin under Settings -> Customer Events and run securely in isolated Web Worker sandboxes across all Shopify subscription plans.',
         },
       },
       {
-        heading: 'Verifying Clean dataLayer Payloads in GA4 DebugView',
-        body: `Verification Protocol:
-1. Install Google Analytics Debugger Chrome extension.
-2. Navigate your staging store through the full 7-step ecommerce journey:
-   - Homepage -> Search -> Collection -> PDP -> Variant Toggle -> Add to Cart -> Open Drawer -> Proceed to Checkout -> Place Test Order.
-3. Open GA4 Admin -> DebugView.
-4. Verify that each event fires in strict sequence with correct numeric values, currency codes, and SKU strings.`,
+        heading: 'The Web Worker Sandbox: How Telemetry Actually Dispatches',
+        body: `A crucial distinction for senior Shopify engineers:
+Because Web Pixels execute in a Web Worker, global \`window\` and \`document\` objects DO NOT EXIST in the pixel runtime!
+How Modern Telemetry Dispatches from Web Pixels:
+1. Native API Objects: The Web Pixel SDK injects \`analytics\` (event bus), \`browser\` (cookie, localStorage, sendBeacon), and \`init\` (store configuration).
+2. Direct Server Dispatch: The pixel transforms the event into standard GA4 Measurement Protocol or Meta CAPI payloads and dispatches via \`fetch()\` or \`browser.sendBeacon()\` directly to your server-side GTM or analytics endpoint.
+3. Dual-Layer Storefront Tracking: On theme pages, Liquid dispatches UI-level micro-interactions to \`window.dataLayer\`, while the Web Pixel handles guaranteed funnel and checkout conversion events.`,
         callout: {
-          type: 'tip',
-          text: 'Confirm that the currency parameter is passed as an ISO 4217 code (e.g. "USD") and product price is a float (78.00), not a string ("$78.00").',
+          type: 'warning',
+          text: 'Never write "window.dataLayer.push()" directly inside a sandboxed Web Pixel extension; it throws a ReferenceError. Use fetch() or browser.sendBeacon() to route to your server tagging endpoint.',
         },
       },
       {
         heading: 'Documenting the Tracking Architecture as Deliverables 1 & 2',
         body: `Assemble your documentation into a clean Markdown architecture specification:
 • Event Taxonomy Ledger: A detailed table listing each event name, trigger mechanism, and parameter schema.
-• Data Pipeline Diagram: Visual Mermaid flowchart illustrating how data flows from storefront DOM -> Web Pixel Worker -> Google Tag Manager -> GA4 & Meta CAPI.
-• QA Sign-Off Matrix: Screenshots of validated payloads in browser DevTools and GA4 DebugView.`,
+• Data Pipeline Diagram: Visual Mermaid flowchart illustrating how data flows from storefront DOM / Web Pixel Worker -> Google Tag Gateway / Server-Side GTM -> GA4 & Meta CAPI.
+• QA Sign-Off Matrix: Screenshots of validated payloads in browser Network tab and GA4 DebugView.`,
         code: `// Production Shopify Web Pixel Extension (customer-events.js)
+// Sandboxed Web Worker environment: utilizes analytics, browser, and init APIs
 import { register } from '@shopify/web-pixels-extension';
 
 register(({ analytics, browser, init }) => {
+  const SERVER_TAGGING_ENDPOINT = 'https://analytics.yourbrand.com/collect';
+
+  // Helper to dispatch telemetry payload safely from Web Worker
+  async function sendTelemetry(eventName: string, ecommerceData: Record<string, any>) {
+    const payload = {
+      event: eventName,
+      timestamp: Date.now(),
+      clientId: await browser.cookie.get('_ga') || 'anonymous',
+      ecommerce: ecommerceData,
+    };
+
+    // Use browser.sendBeacon or fetch API within the worker
+    if (browser.sendBeacon) {
+      browser.sendBeacon(SERVER_TAGGING_ENDPOINT, JSON.stringify(payload));
+    } else {
+      fetch(SERVER_TAGGING_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      });
+    }
+  }
+
   // Subscribe to product view event
   analytics.subscribe('product_viewed', (event) => {
     const product = event.data.productVariant;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: 'view_item',
-      ecommerce: {
-        currency: event.customData?.currency || 'USD',
-        value: product?.price?.amount,
-        items: [{
-          item_id: product?.sku || product?.id,
-          item_name: product?.title,
-          price: product?.price?.amount
-        }]
-      }
+    sendTelemetry('view_item', {
+      currency: event.customData?.currency || 'USD',
+      value: product?.price?.amount,
+      items: [{
+        item_id: product?.sku || product?.id,
+        item_name: product?.title,
+        price: product?.price?.amount,
+      }],
     });
-    console.log('[Web Pixel] view_item event dispatched cleanly.');
   });
 
   // Subscribe to add to cart event
   analytics.subscribe('product_added_to_cart', (event) => {
     const lineItem = event.data.cartLine?.merchandise;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: 'add_to_cart',
-      ecommerce: {
-        value: lineItem?.price?.amount,
-        items: [{
-          item_id: lineItem?.id,
-          item_name: lineItem?.title,
-          quantity: event.data.cartLine?.quantity
-        }]
-      }
+    sendTelemetry('add_to_cart', {
+      value: lineItem?.price?.amount,
+      items: [{
+        item_id: lineItem?.id,
+        item_name: lineItem?.title,
+        quantity: event.data.cartLine?.quantity,
+      }],
+    });
+  });
+
+  // Subscribe to checkout completed event
+  analytics.subscribe('checkout_completed', (event) => {
+    const checkout = event.data.checkout;
+    sendTelemetry('purchase', {
+      transaction_id: checkout.order?.id,
+      value: checkout.totalPrice?.amount,
+      currency: checkout.currencyCode,
+      items: checkout.lineItems.map((item) => ({
+        item_id: item.variant?.id,
+        item_name: item.title,
+        quantity: item.quantity,
+        price: item.variant?.price?.amount,
+      })),
     });
   });
 });`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
+      'Attempting to access window.dataLayer inside a sandboxed Web Pixel extension (window is undefined in Web Workers).',
       'Missing currencyCode or numerical quantity properties in line items.',
       'Forgetting to document the test verification steps in the Capstone deliverable notes.',
     ],
     checklist: [
-      'I have verified all 8 events in Google Tag Manager preview mode.',
+      'I have verified all 8 events in GA4 DebugView and Network tab.',
+      'I understand why Web Pixels run in Web Workers without DOM access.',
       'I have completed Capstone Deliverables 1 & 2.',
     ],
     furtherReading: [
+      { title: 'Shopify Web Pixels API Developer Reference', url: 'https://shopify.dev/docs/api/web-pixels-api' },
       { title: 'Google Tag Manager Preview & Debug Guide', url: 'https://support.google.com/tagmanager' },
     ],
   },
@@ -1205,11 +1291,12 @@ register(({ analytics, browser, init }) => {
     },
     sections: [
       {
-        heading: 'Shipping the Mobile-First PDP with Swatches and Sticky ATC',
+        heading: 'Shipping the Mobile-First PDP with Theme Blocks, Swatches, and Sticky ATC',
         body: `Deliverables 3, 5, 6, and 7 represent the physical storefront conversion components:
-1. High-Performance PDP Buy Box:
-   - Responsive Liquid image tags utilizing \`image_url\` filter and \`fetchpriority="high"\`.
-   - Accessible variant pill and color swatch selectors with instant price and gallery updates.
+1. High-Performance Modular PDP Buy Box:
+   - Built with modern Shopify Theme Blocks in \`/blocks/*.liquid\` and rendered dynamically via \`{% content_for 'blocks' %}\`.
+   - Responsive Liquid image tags utilizing \`image_url\` filter and \`fetchpriority="high"\` for instant LCP.
+   - Accessible variant pill and color swatch selectors supporting up to 2,048 variants and Shopify Combined Listings.
    - 44px minimum tap targets optimized for mobile thumb ergonomics.
 2. Sticky Add-to-Cart Bar:
    - Driven by \`IntersectionObserver\` observing the primary CTA.
@@ -1234,14 +1321,16 @@ register(({ analytics, browser, init }) => {
       {
         heading: 'Deploying the Checkout Delivery & Trust UI Extension',
         body: `Deliverable 7 brings enterprise polish to the checkout step:
-• Native Checkout UI Extension: Built using Shopify’s React extension primitives.
+• Native Checkout UI Extension: Built using Shopify’s React extension primitives across \`purchase.checkout.block.render\`.
 • Dynamic Order Protection Toggle: Injects a 1-click checkbox for transit protection directly into the payment or order summary block.
 • Reassurance Trust Accordion: Displays clear contact information and return policy guarantees directly adjacent to the Pay Now button.`,
         code: `<!-- Production Deliverable 3 & 5 Architecture Verification Checklist -->
 <div class="capstone-verification-container">
   <h3>Capstone Feature Integration Architecture</h3>
   <ul>
-    <li>✓ PDP Hero: Aspect-ratio locked container (aspect-ratio: 1/1) - Zero CLS</li>
+    <li>✓ Modular Theme Blocks: /blocks/*.liquid with {% content_for 'blocks' %}</li>
+    <li>✓ PDP Hero: Responsive image_tag with fetchpriority="high" - Sub-1.8s LCP, Zero CLS</li>
+    <li>✓ Variants: High-capacity swatches compatible with Combined Listings</li>
     <li>✓ Sticky ATC: IntersectionObserver trigger (<1KB vanilla JS)</li>
     <li>✓ Cart Drawer: Section Rendering API dynamic update</li>
     <li>✓ Shipping Bar: Multi-tier dynamic threshold with confetti celebration</li>
@@ -1249,7 +1338,7 @@ register(({ analytics, browser, init }) => {
   </ul>
 </div>`,
         language: 'html',
-      }
+      },
     ],
     mistakes: [
       'Letting sticky ATC bar cover native elements on small screens.',
@@ -1553,15 +1642,15 @@ console.table(INTERVIEW_STATS_CHEAT_SHEET);`,
         heading: 'Top 10 Technical Shopify CRO Interview Questions',
         body: `Be prepared to answer these core technical questions:
 1. How does the Section Rendering API improve cart drawer performance compared to full-page reloads?
-2. What causes Cumulative Layout Shift (CLS) on Shopify PDPs, and how do you eliminate it using Liquid and CSS?
+2. What causes Cumulative Layout Shift (CLS) on Shopify PDPs, and how do you eliminate it using Liquid and CSS aspect-ratio?
 3. How do you prevent Flash of Unstyled Content (FOUC) in client-side A/B testing without using blocking anti-flicker opacity hacks?
-4. How do Shopify Functions (WebAssembly) differ from legacy Ruby Scripts?
-5. Why are Checkout UI Extensions sandboxed in Web Workers, and what UI restrictions does that create?
-6. How does \`fetchpriority="high"\` interact with browser preload scanners for LCP hero images?
-7. What is the difference between client-side dataLayer tracking and server-side Meta CAPI?
-8. How do you diagnose and eliminate third-party Shopify app script bloat?
-9. When would you recommend headless Hydrogen/Remix over a native Liquid theme?
-10. How do you detect and handle Sample Ratio Mismatch (SRM)?`,
+4. How do Shopify Functions (WebAssembly) guarantee sub-5ms execution latency at checkout?
+5. Why are Checkout UI Extensions and Web Pixels sandboxed in Web Workers, and what UI/DOM restrictions does that create?
+6. How does \`fetchpriority="high"\` and \`loading="eager"\` interact with browser preload scanners for LCP hero images?
+7. What is the difference between client-side dataLayer tracking and server-side Meta CAPI with Google Consent Mode v2?
+8. How do you handle high-variant catalogs (up to 2,048 variants) using the GraphQL Admin API and Shopify Combined Listings?
+9. When would you recommend headless Hydrogen (React Router v7 / Vite) over a native Liquid theme?
+10. How do you diagnose Interaction to Next Paint (INP) latency on heavy Shopify PDPs?`,
         callout: {
           type: 'tip',
           text: 'Practice explaining these concepts out loud. Concise, articulate technical answers demonstrate true mastery.',
@@ -1570,33 +1659,34 @@ console.table(INTERVIEW_STATS_CHEAT_SHEET);`,
       {
         heading: 'Explaining Section Rendering, Checkout Extensibility, and Web Pixels',
         body: `Be ready to walk through Shopify's modern architecture stack:
-• Section Rendering API: Allows fetching dynamic HTML fragments server-side via AJAX query parameters, keeping logic in Liquid and eliminating client-side template bloat.
-• Checkout Extensibility: Replaces insecure \`checkout.liquid\` with sandboxed, performant UI extensions and WebAssembly Functions that run seamlessly across Shop Pay.
-• Web Pixels API: Safe, isolated customer event bus providing 100% reliable telemetry across the entire funnel without slowing down the main browsing thread.`,
+• Theme Blocks & Section Rendering API: Allows modular blocks in \`/blocks\` rendered via \`{% content_for 'blocks' %}\`, and dynamic HTML fragment updates via AJAX query parameters, keeping logic in Liquid and eliminating client-side template bloat.
+• Checkout Extensibility: Delivers sandboxed, performant UI extensions and WebAssembly Functions that run seamlessly across One-Page Checkout and Shop Pay.
+• Web Pixels API: Safe, isolated customer event bus in Web Workers providing 100% reliable telemetry across the entire funnel without slowing down the main browsing thread or risking checkout crashes.`,
         callout: {
           type: 'shopify',
-          text: 'Showing that you are fully versed in modern Shopify 2025/2026 standards immediately disqualifies developers stuck in legacy 2018 patterns.',
+          text: 'Showing that you are fully versed in modern Shopify standards (Theme Blocks, Combined Listings, 2,048 variants, Web Pixels) immediately disqualifies developers stuck in legacy 2018 patterns.',
         },
       },
       {
         heading: 'Demonstrating Deep Awareness of Core Web Vitals and LCP Optimization',
         body: `When asked about site speed, avoid generic platitudes ("I optimize images").
 Deliver the Senior Engineering Breakdown:
-"To optimize Largest Contentful Paint (LCP) on a Shopify PDP, I inspect the network waterfall to identify the hero image. I ensure it uses responsive Liquid \`srcset\` via the \`image_tag\` filter, apply \`loading='eager'\` and \`fetchpriority='high'\`, inject a preload link in \`<head>\`, and wrap the container in an explicit CSS aspect-ratio wrapper to prevent Cumulative Layout Shift." `,
+"To optimize Largest Contentful Paint (LCP) and Interaction to Next Paint (INP) on a Shopify PDP, I inspect the network waterfall to identify the hero image. I ensure it uses responsive Liquid \`srcset\` via the \`image_tag\` filter, apply \`loading='eager'\` and \`fetchpriority='high'\`, inject a preload link in \`<head>\`, and wrap the container in an explicit CSS aspect-ratio wrapper to prevent Cumulative Layout Shift. For INP, I debounce swatch listeners, defer non-critical analytics apps, and avoid long tasks during cart drawer opens."`,
         code: `// Technical Interview Quick-Reference Architecture Summary
 export const SHOPIFY_CRO_TECH_STACK = {
-  templating: 'Liquid 2.0 + Section Rendering API',
-  checkout: 'Checkout Extensibility + Checkout UI Extensions (Preact)',
-  backendLogic: 'Shopify Functions (Rust / Wasm)',
-  telemetry: 'Shopify Web Pixels API + GA4 dataLayer + Meta CAPI',
+  templating: 'Liquid + Theme Blocks (/blocks) + Section Rendering API',
+  checkout: 'Checkout Extensibility + Checkout UI Extensions (Preact) + Shopify Functions (Wasm)',
+  variants: 'Up to 2,048 variants via GraphQL Admin API + Shopify Combined Listings',
+  headless: 'Hydrogen (React Router v7 / Vite) on Oxygen',
+  telemetry: 'Shopify Web Pixels API (Web Worker) + Google Consent Mode v2 + Meta CAPI',
   edgeRouting: 'Cloudflare Workers (HTMLRewriter)',
-  performanceBudget: 'Sub-2.5s LCP, Sub-200ms INP, Sub-0.05 CLS'
+  performanceBudget: 'Sub-2.0s LCP, Sub-200ms INP, Sub-0.05 CLS',
 };`,
         language: 'javascript',
-      }
+      },
     ],
     mistakes: [
-      'Suggesting obsolete practices like editing checkout.liquid or using script tags in header.',
+      'Suggesting client-side DOM hacking in checkout instead of Checkout UI Extensions.',
       'Failing to mention mobile-specific performance considerations.',
     ],
     checklist: [

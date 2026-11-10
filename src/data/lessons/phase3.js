@@ -149,6 +149,18 @@ Interactive Swatch Benefits:
                 },
             },
             {
+                heading: 'Shopify Combined Listings: The Modern Multi-Variant Architecture',
+                body: `In traditional Shopify themes, all product variants are forced to share a single description, one meta title, and one primary media gallery.
+Shopify Combined Listings:
+• Unique Product Content per Variant: Each variant (e.g. "Matte Black" vs "Brushed Titanium") is an actual individual product with its own dedicated media gallery, specific marketing copy, independent URL, and dedicated customer reviews.
+• Unified Parent Experience: Shoppers experience them as a single cohesive product listing with dynamic swatch switching.
+• Conversion Advantage: Eliminates customer confusion, provides distinct URLs for targeted ad campaigns, and prevents image gallery pollution across colors. On non-Plus stores, this pattern is replicated using product-reference Metafields and Section Rendering API.`,
+                callout: {
+                    type: 'shopify',
+                    text: 'Combined Listings increases PDP conversion by matching paid ad traffic directly to the exact colorway and description without forcing the user to find the variant in a dropdown.',
+                },
+            },
+            {
                 heading: 'High-Performance Sticky Add to Cart Bar Architecture',
                 body: `When a customer scrolls down a PDP on mobile to read reviews, examine sizing specs, or view user-generated content, the primary Add to Cart button disappears from view.
 Forcing the customer to scroll back up 4 screen heights to purchase introduces physical friction.
@@ -827,7 +839,7 @@ async function loadCartCrossSells(primaryProductId: number) {
         sections: [
             {
                 heading: 'Checkout Branding API: Styling Typography, Colors, and Radii',
-                body: `Shopify deprecated legacy \`checkout.liquid\` in favor of the extensible, secure Checkout Branding API.
+                body: `Modern Shopify checkouts are styled using the extensible, secure Checkout Branding API.
 Styling Capabilities:
 • Font Pairing: Apply custom web typography to headings and body text in the checkout flow.
 • Color System: Harmonize background tints, input border accents, and primary action button fills to match your main theme.
@@ -851,7 +863,7 @@ Common CRO Checkout Extensions:
             },
             {
                 heading: 'Writing Backend Rules with Shopify Functions (WebAssembly)',
-                body: `Shopify Functions replace legacy Ruby Scripts for backend business logic, running compiled WebAssembly (Wasm) in under 5ms:
+                body: `Shopify Functions execute backend business logic at checkout, running compiled WebAssembly (Wasm) in under 5ms:
 1. Discount Rules: Tiered spend discounts (e.g., Buy 2 get 10% off, Buy 3 get 20% off) calculated directly on the server.
 2. Payment Customization: Dynamically hide Cash on Delivery (COD) or Klarna for high-risk order profiles or specific geographic regions.
 3. Delivery Customization: Rename, re-order, or hide specific shipping tiers based on cart weight and delivery destination.`,

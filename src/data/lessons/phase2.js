@@ -1318,7 +1318,8 @@ Instead of writing JavaScript that moves elements around or injects HTML after p
             'I know how to prevent visible flicker using synchronous execution in the document head.',
         ],
         furtherReading: [
-            { title: 'Google Optimize Anti-Flicker Best Practices', url: 'https://support.google.com/optimize' },
+            { title: 'Cloudflare Workers A/B Testing Blueprint', url: 'https://developers.cloudflare.com/workers/examples/ab-testing/' },
+            { title: 'GrowthBook: Eliminating A/B Testing Flicker', url: 'https://docs.growthbook.io' },
         ],
     },
     {
@@ -1607,7 +1608,7 @@ console.log('SRM Detected Sample:', detectSRM(10050, 8420));`,
    Enable the "Show Web Vitals" badge in DevTools Console to inspect live LCP element targets and CLS shift triggers in real-time.
 3. Network Waterfall:
    Sort network requests by "Waterfall" to locate render-blocking CSS files and unoptimized hero images competing for initial bandwidth.`,
-                code: `// Browser Performance Observer for Live Core Web Vitals Telemetry
+                code: `// Browser Performance Observer for Live Core Web Vitals & INP Telemetry
 if ('PerformanceObserver' in window) {
   // 1. Observe Largest Contentful Paint (LCP)
   new PerformanceObserver((entryList) => {
@@ -1626,6 +1627,17 @@ if ('PerformanceObserver' in window) {
       }
     }
   }).observe({ type: 'layout-shift', buffered: true });
+
+  // 3. Observe Interaction to Next Paint (INP)
+  new PerformanceObserver((entryList) => {
+    for (const entry of entryList.getEntries()) {
+      const duration = entry.duration;
+      console.log('[CWV Monitor] INP Interaction Duration:', duration, 'ms', entry);
+      if (duration > 200) {
+        console.warn('[CWV Alert] Slow INP detected (>200ms) on interaction:', (entry as any).target);
+      }
+    }
+  }).observe({ type: 'first-input', buffered: true });
 }`,
                 language: 'javascript',
             }
@@ -1673,7 +1685,7 @@ The App Audit Protocol:
 3. Replace Apps with Native Liquid / Storefront API: Replace third-party apps for sticky carts, basic FAQs, and currency selectors with lightweight native Liquid components.`,
                 callout: {
                     type: 'warning',
-                    text: 'Shopify app scripts that load via legacy ScriptTags run synchronously, blocking initial page rendering. Migrate to Shopify App Embeds (Theme App Extensions).',
+                    text: 'Third-party storefront integrations must be deployed as Theme App Extensions (App Embeds), ensuring non-blocking asynchronous execution without modifying theme.liquid directly.',
                 },
             },
             {
